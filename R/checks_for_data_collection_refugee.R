@@ -8,11 +8,11 @@ source("support_files/credentials.R")
 
 # read data ---------------------------------------------------------------
 
-loc_data_refugee <- "inputs/UGA2305_land_and_energy_data.xlsx"
+loc_data_refugee <- "inputs/UGA2402_aba_mbarara_refugee_data.xlsx"
 df_tool_data_refugee <- readxl::read_excel(loc_data_refugee)
 
 # tool
-loc_tool_refugee <- "inputs/land_and_energy_tool.xlsx"
+loc_tool_refugee <- "inputs/UGA2402_aba_mbarara_refugee_tool.xlsx"
 df_survey_refugee <- readxl::read_excel(loc_tool_refugee, sheet = "survey") 
 df_choices_refugee <- readxl::read_excel(loc_tool_refugee, sheet = "choices")
 
@@ -127,5 +127,5 @@ add_with_info_refugee |>
         kobo_choices = df_choices,
         use_dropdown = TRUE,
         output_path = paste0("outputs/", butteR::date_file_prefix(), 
-                             "_combined_checks_aba_mbarara.xlsx")
+                             "_combined_checks_aba_mbarara_refugee.xlsx")
     )
