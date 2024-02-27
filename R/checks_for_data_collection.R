@@ -85,3 +85,26 @@ list_log$other_log <- df_other_checks
 # similarity
 
 
+# combine the checks ------------------------------------------------------
+
+df_combined_log <- create_combined_log(dataset_name = "checked_dataset", list_of_log = list_log)
+
+# add_info_to_cleaning_log()
+add_with_info <- add_info_to_cleaning_log(list_of_log = df_combined_log,
+                                          dataset = "checked_dataset",
+                                          cleaning_log = "cleaning_log",
+                                          dataset_uuid_column = "_uuid",
+                                          cleaning_log_uuid_column = "uuid",
+                                          information_to_add = c("meta_enumerator_id", "today")
+)
+
+
+# create_xlsx_cleaning_log()
+add_with_info |>
+    create_xlsx_cleaning_log(
+        kobo_survey = df_survey,
+        kobo_choices = df_choices,
+        use_dropdown = TRUE,
+        output_path = paste0("outputs/", butteR::date_file_prefix(), 
+                             "_combined_checks_aba_mbarara.xlsx")
+    )
