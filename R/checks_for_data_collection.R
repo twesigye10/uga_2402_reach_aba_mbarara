@@ -37,3 +37,37 @@ pii_cols <- c("telephone","contact","name","gps","latitude","logitude","contact"
 pii_from_data <- cleaningtools::check_pii(dataset = df_tool_data_refugee, element_name = "checked_dataset", uuid_column = "_uuid")
 pii_from_data$potential_PII
 
+# duration ----------------------------------------------------------------
+# read audit file
+audit_list_data <- cleaningtools::create_audit_list(audit_zip_path = "inputs/audit_files_refugee.zip")
+# add duration from audit
+df_tool_data_with_audit_time <- cleaningtools::add_duration_from_audit(df_tool_data_refugee, uuid_column = "_uuid", audit_list = audit_list_data)
+
+
+# Exporting the flags in excel --------------------------------------------
+
+# outliers columns not to check
+outlier_cols_not_4_checking <- df_tool_data_refugee %>% 
+    select(matches("geopoint|gps|_index|_submit|submission|_sample_|^_id$")) %>% 
+    colnames()
+
+# create_combined_log()
+list_log <- df_tool_data_with_audit_time %>%
+    check_pii(uuid_column = "_uuid") %>%
+    check_duration(column_to_check = "duration_audit_sum_all_minutes",
+                   uuid_column = "_uuid",
+                   log_name = "duration_log",
+                   lower_bound = 20,
+                   higher_bound = 120) %>% 
+    check_outliers(uuid_column = "_uuid", sm_separator = "/",
+                   strongness_factor = 3, columns_not_to_check = outlier_cols_not_4_checking) %>% 
+    check_soft_duplicates(kobo_survey = df_survey_refugee,
+                          uuid_column = "_uuid",
+                          idnk_value = "dk",
+                          sm_separator = "/",
+                          log_name = "soft_duplicate_log",
+                          threshold = 7,
+                          return_all_results = FALSE) %>%
+    check_value(uuid_column = "_uuid", values_to_look = c(666, 99, 999, 9999, 98, 88, 888, 8888))
+
+
