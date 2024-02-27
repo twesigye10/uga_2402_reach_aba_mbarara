@@ -30,4 +30,10 @@ if (dir.exists("inputs/audit_files_refugee")) {
              mode = "cherry-pick")
 }
 
+# check pii ---------------------------------------------------------------
+
+pii_cols <- c("telephone","contact","name","gps","latitude","logitude","contact","geopoint")
+
+pii_from_data <- cleaningtools::check_pii(dataset = df_tool_data_refugee, element_name = "checked_dataset", uuid_column = "_uuid")
+pii_from_data$potential_PII
 
