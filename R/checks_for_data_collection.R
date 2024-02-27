@@ -71,3 +71,17 @@ list_log <- df_tool_data_with_audit_time %>%
     check_value(uuid_column = "_uuid", values_to_look = c(666, 99, 999, 9999, 98, 88, 888, 8888))
 
 
+# other checks
+
+df_other_checks_refugee <- cts_format_other_specify(input_tool_data = df_tool_data_refugee, 
+                                                    input_uuid_col = "_uuid", 
+                                                    input_survey = df_survey_refugee, 
+                                                    input_choices = df_choices_refugee)
+# add other checks to the list
+list_log$other_log <- df_other_checks
+
+# silhouette
+
+# similarity
+
+
