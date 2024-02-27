@@ -123,8 +123,8 @@ add_with_info_refugee <- add_info_to_cleaning_log(list_of_log = df_combined_log_
 # create_xlsx_cleaning_log()
 add_with_info_refugee |>
     create_xlsx_cleaning_log(
-        kobo_survey = df_survey,
-        kobo_choices = df_choices,
+        kobo_survey = df_survey_refugee,
+        kobo_choices = df_choices_refugee,
         use_dropdown = TRUE,
         output_path = paste0("outputs/", butteR::date_file_prefix(), 
                              "_combined_checks_aba_mbarara_refugee.xlsx")
