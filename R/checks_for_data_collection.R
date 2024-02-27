@@ -52,7 +52,7 @@ outlier_cols_not_4_checking <- df_tool_data_refugee %>%
     colnames()
 
 # create_combined_log()
-list_log <- df_tool_data_with_audit_time %>%
+list_log_refugee <- df_tool_data_with_audit_time %>%
     check_pii(uuid_column = "_uuid") %>%
     check_duration(column_to_check = "duration_audit_sum_all_minutes",
                    uuid_column = "_uuid",
@@ -78,29 +78,50 @@ df_other_checks_refugee <- cts_format_other_specify(input_tool_data = df_tool_da
                                                     input_survey = df_survey_refugee, 
                                                     input_choices = df_choices_refugee)
 # add other checks to the list
-list_log$other_log <- df_other_checks
+list_log_refugee$other_log <- df_other_checks
 
 # silhouette
+# NOTE: the column for "col_admin" is kept in the data
 
-# similarity
+omit_cols_sil <- c("start", "end", "today", "duration", "duration_minutes",
+                   "deviceid", "audit", "audit_URL", "instance_name", "end_survey",
+                   "geopoint", "_geopoint_latitude", "_geopoint_altitude", "_geopoint_precision", "_id" ,"_submission_time","_validation_status","_notes","_status","_submitted_by","_tags","_index")
 
+data_similartiy_sil <- df_tool_data_refugee %>% 
+    select(- any_of(omit_cols_sil), - matches("_note$|^note_"))
+
+df_sil_data <- calculateEnumeratorSimilarity(data = data_similartiy_sil,
+                                             input_df_survey = df_survey, 
+                                             col_enum = "enumerator_id",
+                                             col_admin = "interview_cell") %>% 
+    mutate(si2= abs(si))
+
+df_sil_processed <- df_sil_data[order(df_sil_data$`si2`, decreasing = TRUE),!colnames(df_sil_data)%in%"si2"] %>%  
+    filter(si > 0.6) %>% 
+    mutate(i.check.uuid = "all",
+           i.check.question = NA_character_,
+           i.check.issue = paste("Potential similar responses for enumerator. si: ",si)) %>% 
+    batch_select_rename()
+
+# add other checks to the list
+list_log_refugee$enum_similarity <- df_sil_processed
 
 # combine the checks ------------------------------------------------------
 
-df_combined_log <- create_combined_log(dataset_name = "checked_dataset", list_of_log = list_log)
+df_combined_log_refugee <- create_combined_log(dataset_name = "checked_dataset", list_of_log = list_log_refugee)
 
 # add_info_to_cleaning_log()
-add_with_info <- add_info_to_cleaning_log(list_of_log = df_combined_log,
+add_with_info_refugee <- add_info_to_cleaning_log(list_of_log = df_combined_log_refugee,
                                           dataset = "checked_dataset",
                                           cleaning_log = "cleaning_log",
                                           dataset_uuid_column = "_uuid",
                                           cleaning_log_uuid_column = "uuid",
-                                          information_to_add = c("meta_enumerator_id", "today")
+                                          information_to_add = c("enumerator_id", "today", "interview_cell")
 )
 
 
 # create_xlsx_cleaning_log()
-add_with_info |>
+add_with_info_refugee |>
     create_xlsx_cleaning_log(
         kobo_survey = df_survey,
         kobo_choices = df_choices,
