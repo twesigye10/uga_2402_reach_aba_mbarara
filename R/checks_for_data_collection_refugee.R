@@ -51,6 +51,9 @@ outlier_cols_not_4_checking <- df_tool_data_refugee %>%
     select(matches("geopoint|gps|_index|_submit|submission|_sample_|^_id$")) %>% 
     colnames()
 
+# logical checks data
+df_list_logical_checks_refugee <- read_builtin("inputs/logical_checks_aba_mbarara_refugee.csv")
+
 # create_combined_log()
 list_log_refugee <- df_tool_data_with_audit_time %>%
     check_pii(uuid_column = "_uuid") %>%
@@ -68,7 +71,14 @@ list_log_refugee <- df_tool_data_with_audit_time %>%
                           log_name = "soft_duplicate_log",
                           threshold = 7,
                           return_all_results = FALSE) %>%
-    check_value(uuid_column = "_uuid", values_to_look = c(666, 99, 999, 9999, 98, 88, 888, 8888))
+    check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999)) %>% 
+    check_logical_with_list(uuid_column = "_uuid",
+                            list_of_check = df_list_logical_checks_refugee,
+                            check_id_column = "check_id",
+                            check_to_perform_column = "check_to_perform",
+                            columns_to_clean_column = "columns_to_clean",
+                            description_column = "description",
+                            bind_checks = TRUE )
 
 
 # other checks
