@@ -74,9 +74,9 @@ list_log_host <- df_tool_data_with_audit_time %>%
 # other checks
 
 df_other_checks_host <- cts_format_other_specify(input_tool_data = df_tool_data_host, 
-                                                    input_uuid_col = "_uuid", 
-                                                    input_survey = df_survey_host, 
-                                                    input_choices = df_choices_host)
+                                                 input_uuid_col = "_uuid", 
+                                                 input_survey = df_survey_host, 
+                                                 input_choices = df_choices_host)
 # add other checks to the list
 list_log_host$other_log <- df_other_checks
 
@@ -110,22 +110,83 @@ list_log_host$enum_similarity <- df_sil_processed
 
 df_combined_log_host <- create_combined_log(dataset_name = "checked_dataset", list_of_log = list_log_host)
 
-# add_info_to_cleaning_log()
-add_with_info_host <- add_info_to_cleaning_log(list_of_log = df_combined_log_host,
-                                          dataset = "checked_dataset",
-                                          cleaning_log = "cleaning_log",
-                                          dataset_uuid_column = "_uuid",
-                                          cleaning_log_uuid_column = "uuid",
-                                          information_to_add = c("enumerator_id", "today", "interview_cell")
+# # add_info_to_cleaning_log()
+# add_with_info_host <- add_info_to_cleaning_log(list_of_log = df_combined_log_host,
+#                                                dataset = "checked_dataset",
+#                                                cleaning_log = "cleaning_log",
+#                                                dataset_uuid_column = "_uuid",
+#                                                cleaning_log_uuid_column = "uuid",
+#                                                information_to_add = c("enumerator_id", "today", "interview_cell")
+# )
+# 
+# 
+# # create_xlsx_cleaning_log()
+# add_with_info_host |>
+#     create_xlsx_cleaning_log(kobo_survey = df_survey_host,
+#                              kobo_choices = df_choices_host,
+#                              use_dropdown = TRUE,
+#                              output_path = paste0("outputs/", butteR::date_file_prefix(), 
+#                                                   "_combined_checks_aba_mbarara_host.xlsx")
+#     )
+
+cols_to_add_to_log <- c("enumerator_id", "today", "interview_cell")
+
+tool_support <- df_combined_log_host$checked_dataset %>% 
+    select(uuid = `_uuid`, any_of(cols_to_add_to_log))
+
+# create workbook ---------------------------------------------------------
+# prep data
+df_prep_checked_data_host <- df_combined_log_host$checked_dataset
+df_prep_cleaning_log_host <- df_combined_log_host$cleaning_log %>%
+    left_join(tool_support, by = "uuid") %>% 
+    relocate(any_of(cols_to_add_to_log), .after = uuid)
+
+df_prep_readme_host <- tibble::tribble(
+    ~change_type_validation,                       ~description,
+    "change_response", "Change the response to new_value",
+    "blank_response",       "Remove and NA the response",
+    "remove_survey",                "Delete the survey",
+    "no_action",               "No action to take."
 )
 
 
-# create_xlsx_cleaning_log()
-add_with_info_host |>
-    create_xlsx_cleaning_log(
-        kobo_survey = df_survey_host,
-        kobo_choices = df_choices_host,
-        use_dropdown = TRUE,
-        output_path = paste0("outputs/", butteR::date_file_prefix(), 
-                             "_combined_checks_aba_mbarara_host.xlsx")
-    )
+wb_log_host <- createWorkbook()
+
+hs1 <- createStyle(fgFill = "#E34443", textDecoration = "Bold", fontName = "Arial Narrow", fontColour = "white", fontSize = 12, wrapText = F)
+
+addWorksheet(wb_log_host, sheetName="checked_dataset")
+setColWidths(wb = wb_log_host, sheet = "checked_dataset", cols = 1:ncol(df_prep_checked_data_host), widths = 24.89)
+writeDataTable(wb = wb_log_host, sheet = "checked_dataset", 
+               x = df_prep_checked_data_host , 
+               startRow = 1, startCol = 1, 
+               tableStyle = "TableStyleLight9",
+               headerStyle = hs1)
+# freeze pane
+freezePane(wb = wb_log_host, "checked_dataset", firstActiveRow = 2, firstActiveCol = 2)
+
+
+addWorksheet(wb_log_host, sheetName="cleaning_log")
+setColWidths(wb = wb_log_host, sheet = "cleaning_log", cols = 1:ncol(df_prep_cleaning_log_host), widths = 24.89)
+writeDataTable(wb = wb_log_host, sheet = "cleaning_log", 
+               x = df_prep_cleaning_log_host , 
+               startRow = 1, startCol = 1, 
+               tableStyle = "TableStyleLight9",
+               headerStyle = hs1)
+# freeze pane
+freezePane(wb = wb_log_host, "cleaning_log", firstActiveRow = 2, firstActiveCol = 2)
+
+addWorksheet(wb_log_host, sheetName="readme")
+setColWidths(wb = wb_log_host, sheet = "readme", cols = 1:ncol(df_prep_readme_host), widths = 24.89)
+writeDataTable(wb = wb_log_host, sheet = "readme", 
+               x = df_prep_readme_host , 
+               startRow = 1, startCol = 1, 
+               tableStyle = "TableStyleLight9",
+               headerStyle = hs1)
+# freeze pane
+freezePane(wb = wb_log_host, "readme", firstActiveRow = 2, firstActiveCol = 2)
+
+# openXL(wb_log_host)
+
+saveWorkbook(wb_log_host, paste0("outputs/", butteR::date_file_prefix(),"_combined_checks_aba_mbarara_host.xlsx"), overwrite = TRUE)
+openXL(file = paste0("outputs/", butteR::date_file_prefix(),"_combined_checks_aba_mbarara_host.xlsx"))
+
