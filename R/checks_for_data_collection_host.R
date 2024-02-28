@@ -129,13 +129,14 @@ df_combined_log_host <- create_combined_log(dataset_name = "checked_dataset", li
 #                                                   "_combined_checks_aba_mbarara_host.xlsx")
 #     )
 
+
+# create workbook ---------------------------------------------------------
+# prep data
 cols_to_add_to_log <- c("enumerator_id", "today", "interview_cell")
 
 tool_support <- df_combined_log_host$checked_dataset %>% 
     select(uuid = `_uuid`, any_of(cols_to_add_to_log))
 
-# create workbook ---------------------------------------------------------
-# prep data
 df_prep_checked_data_host <- df_combined_log_host$checked_dataset
 df_prep_cleaning_log_host <- df_combined_log_host$cleaning_log %>%
     left_join(tool_support, by = "uuid") %>% 
