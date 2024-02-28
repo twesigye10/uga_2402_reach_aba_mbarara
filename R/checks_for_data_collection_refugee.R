@@ -110,22 +110,85 @@ list_log_refugee$enum_similarity <- df_sil_processed
 
 df_combined_log_refugee <- create_combined_log(dataset_name = "checked_dataset", list_of_log = list_log_refugee)
 
-# add_info_to_cleaning_log()
-add_with_info_refugee <- add_info_to_cleaning_log(list_of_log = df_combined_log_refugee,
-                                          dataset = "checked_dataset",
-                                          cleaning_log = "cleaning_log",
-                                          dataset_uuid_column = "_uuid",
-                                          cleaning_log_uuid_column = "uuid",
-                                          information_to_add = c("enumerator_id", "today", "interview_cell")
+# # add_info_to_cleaning_log()
+# add_with_info_refugee <- add_info_to_cleaning_log(list_of_log = df_combined_log_refugee,
+#                                           dataset = "checked_dataset",
+#                                           cleaning_log = "cleaning_log",
+#                                           dataset_uuid_column = "_uuid",
+#                                           cleaning_log_uuid_column = "uuid",
+#                                           information_to_add = c("enumerator_id", "today", "interview_cell")
+# )
+# 
+# 
+# # create_xlsx_cleaning_log()
+# add_with_info_refugee |>
+#     create_xlsx_cleaning_log(
+#         kobo_survey = df_survey_refugee,
+#         kobo_choices = df_choices_refugee,
+#         use_dropdown = TRUE,
+#         output_path = paste0("outputs/", butteR::date_file_prefix(), 
+#                              "_combined_checks_aba_mbarara_refugee.xlsx")
+#     )
+
+
+# create workbook ---------------------------------------------------------
+# prep data
+cols_to_add_to_log <- c("enumerator_id", "today", "interview_cell")
+
+tool_support <- df_combined_log_refugee$checked_dataset %>% 
+    select(uuid = `_uuid`, any_of(cols_to_add_to_log))
+
+df_prep_checked_data_refugee <- df_combined_log_refugee$checked_dataset
+df_prep_cleaning_log_refugee <- df_combined_log_refugee$cleaning_log %>%
+    left_join(tool_support, by = "uuid") %>% 
+    relocate(any_of(cols_to_add_to_log), .after = uuid)
+
+df_prep_readme_refugee <- tibble::tribble(
+    ~change_type_validation,                       ~description,
+    "change_response", "Change the response to new_value",
+    "blank_response",       "Remove and NA the response",
+    "remove_survey",                "Delete the survey",
+    "no_action",               "No action to take."
 )
 
+wb_log_refugee <- createWorkbook()
 
-# create_xlsx_cleaning_log()
-add_with_info_refugee |>
-    create_xlsx_cleaning_log(
-        kobo_survey = df_survey_refugee,
-        kobo_choices = df_choices_refugee,
-        use_dropdown = TRUE,
-        output_path = paste0("outputs/", butteR::date_file_prefix(), 
-                             "_combined_checks_aba_mbarara_refugee.xlsx")
-    )
+hs1 <- createStyle(fgFill = "#E34443", textDecoration = "Bold", fontName = "Arial Narrow", fontColour = "white", fontSize = 12, wrapText = F)
+
+modifyBaseFont(wb = wb_log, fontSize = 11, fontName = "Arial Narrow")
+
+addWorksheet(wb_log_refugee, sheetName="checked_dataset")
+setColWidths(wb = wb_log_refugee, sheet = "checked_dataset", cols = 1:ncol(df_prep_checked_data_refugee), widths = 24.89)
+writeDataTable(wb = wb_log_refugee, sheet = "checked_dataset", 
+               x = df_prep_checked_data_refugee , 
+               startRow = 1, startCol = 1, 
+               tableStyle = "TableStyleLight9",
+               headerStyle = hs1)
+# freeze pane
+freezePane(wb = wb_log_refugee, "checked_dataset", firstActiveRow = 2, firstActiveCol = 2)
+
+
+addWorksheet(wb_log_refugee, sheetName="cleaning_log")
+setColWidths(wb = wb_log_refugee, sheet = "cleaning_log", cols = 1:ncol(df_prep_cleaning_log_refugee), widths = 24.89)
+writeDataTable(wb = wb_log_refugee, sheet = "cleaning_log", 
+               x = df_prep_cleaning_log_refugee , 
+               startRow = 1, startCol = 1, 
+               tableStyle = "TableStyleLight9",
+               headerStyle = hs1)
+# freeze pane
+freezePane(wb = wb_log_refugee, "cleaning_log", firstActiveRow = 2, firstActiveCol = 2)
+
+addWorksheet(wb_log_refugee, sheetName="readme")
+setColWidths(wb = wb_log_refugee, sheet = "readme", cols = 1:ncol(df_prep_readme_refugee), widths = 24.89)
+writeDataTable(wb = wb_log_refugee, sheet = "readme", 
+               x = df_prep_readme_refugee , 
+               startRow = 1, startCol = 1, 
+               tableStyle = "TableStyleLight9",
+               headerStyle = hs1)
+# freeze pane
+freezePane(wb = wb_log_refugee, "readme", firstActiveRow = 2, firstActiveCol = 2)
+
+# openXL(wb_log_refugee)
+
+saveWorkbook(wb_log_refugee, paste0("outputs/", butteR::date_file_prefix(),"_combined_checks_aba_mbarara_refugee.xlsx"), overwrite = TRUE)
+openXL(file = paste0("outputs/", butteR::date_file_prefix(),"_combined_checks_aba_mbarara_refugee.xlsx"))
