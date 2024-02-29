@@ -120,7 +120,7 @@ list_log_host$enum_similarity <- df_sil_processed
 
 # combine the checks ------------------------------------------------------
 
-df_combined_log_host <- create_combined_log(dataset_name = "checked_dataset", list_of_log = list_log_host)
+df_combined_log_host <- create_combined_log_keep_change_type(dataset_name = "checked_dataset", list_of_log = list_log_host)
 
 # # add_info_to_cleaning_log()
 # add_with_info_host <- add_info_to_cleaning_log(list_of_log = df_combined_log_host,
