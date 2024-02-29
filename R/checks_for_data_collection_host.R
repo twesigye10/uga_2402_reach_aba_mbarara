@@ -101,7 +101,7 @@ data_similartiy_sil <- df_tool_data_host %>%
     select(- any_of(omit_cols_sil), - matches("_note$|^note_"))
 
 df_sil_data <- calculateEnumeratorSimilarity(data = data_similartiy_sil,
-                                             input_df_survey = df_survey, 
+                                             input_df_survey = df_survey_host, 
                                              col_enum = "enumerator_id",
                                              col_admin = "interview_cell") %>% 
     mutate(si2= abs(si))
