@@ -94,7 +94,8 @@ list_log_refugee$other_log <- df_other_checks_refugee
 df_fcs_same_values <- df_tool_data_refugee %>%  
     filter(if_all(c(cereals, pulses, vegetables, fruits, condiments, 
                     protein, dairy, sugar, oils), ~ cereals == .x))  %>% 
-    mutate(i.check.change_type = "change_response",
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
            i.check.question = "cereals",
            i.check.old_value = as.character(cereals),
            i.check.new_value = "NA",
