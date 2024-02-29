@@ -88,7 +88,7 @@ df_other_checks_host <- cts_format_other_specify(input_tool_data = df_tool_data_
                                                  input_survey = df_survey_host, 
                                                  input_choices = df_choices_host)
 # add other checks to the list
-list_log_host$other_log <- df_other_checks
+list_log_host$other_log <- df_other_checks_host
 
 # silhouette
 # NOTE: the column for "col_admin" is kept in the data
@@ -115,6 +115,8 @@ df_sil_processed <- df_sil_data[order(df_sil_data$`si2`, decreasing = TRUE),!col
 
 # add other checks to the list
 list_log_host$enum_similarity <- df_sil_processed
+
+
 
 # combine the checks ------------------------------------------------------
 
