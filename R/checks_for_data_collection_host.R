@@ -167,6 +167,8 @@ wb_log_host <- createWorkbook()
 
 hs1 <- createStyle(fgFill = "#E34443", textDecoration = "Bold", fontName = "Arial Narrow", fontColour = "white", fontSize = 12, wrapText = F)
 
+modifyBaseFont(wb = wb_log_host, fontSize = 11, fontName = "Arial Narrow")
+
 addWorksheet(wb_log_host, sheetName="checked_dataset")
 setColWidths(wb = wb_log_host, sheet = "checked_dataset", cols = 1:ncol(df_prep_checked_data_host), widths = 24.89)
 writeDataTable(wb = wb_log_host, sheet = "checked_dataset", 

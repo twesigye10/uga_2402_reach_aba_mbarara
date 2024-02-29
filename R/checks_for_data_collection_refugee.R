@@ -203,7 +203,7 @@ wb_log_refugee <- createWorkbook()
 
 hs1 <- createStyle(fgFill = "#E34443", textDecoration = "Bold", fontName = "Arial Narrow", fontColour = "white", fontSize = 12, wrapText = F)
 
-modifyBaseFont(wb = wb_log, fontSize = 11, fontName = "Arial Narrow")
+modifyBaseFont(wb = wb_log_refugee, fontSize = 11, fontName = "Arial Narrow")
 
 addWorksheet(wb_log_refugee, sheetName="checked_dataset")
 setColWidths(wb = wb_log_refugee, sheet = "checked_dataset", cols = 1:ncol(df_prep_checked_data_refugee), widths = 24.89)
