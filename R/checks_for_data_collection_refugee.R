@@ -52,7 +52,7 @@ outlier_cols_not_4_checking <- df_tool_data_refugee %>%
     colnames()
 
 # logical checks data
-df_list_logical_checks_refugee <- read_builtin("inputs/logical_checks_aba_mbarara_refugee.csv")
+df_list_logical_checks_refugee <- read_csv("inputs/logical_checks_aba_mbarara_refugee.csv")
 
 # create_combined_log()
 list_log_refugee <- df_tool_data_with_audit_time %>%
