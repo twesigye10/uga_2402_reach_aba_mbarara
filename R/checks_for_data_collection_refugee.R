@@ -88,7 +88,45 @@ df_other_checks_refugee <- cts_format_other_specify(input_tool_data = df_tool_da
                                                     input_survey = df_survey_refugee, 
                                                     input_choices = df_choices_refugee)
 # add other checks to the list
-list_log_refugee$other_log <- df_other_checks
+list_log_refugee$other_log <- df_other_checks_refugee
+
+# values entered is the same across food groups
+df_fcs_same_values <- df_tool_data %>%  
+    filter(if_all(c(cereals, pulses, vegetables, fruits, condiments, 
+                    protein, dairy, sugar, oils), ~ cereals == .x))  %>% 
+    mutate(i.check.change_type = "change_response",
+           i.check.question = "cereals",
+           i.check.old_value = as.character(cereals),
+           i.check.new_value = "NA",
+           i.check.issue = "Same fcs values",
+           i.check.comment = "") %>% 
+    slice(rep(1:n(), each = 9)) %>%  
+    group_by(i.check.uuid, i.check.change_type,  i.check.question,  i.check.old_value) %>%  
+    mutate(rank = row_number(),
+           i.check.question = case_when(rank == 1 ~ "cereals", 
+                                        rank == 2 ~ "pulses",
+                                        rank == 3 ~ "vegetables", 
+                                        rank == 4 ~ "fruits", 
+                                        rank == 5 ~ "condiments", 
+                                        rank == 6 ~ "protein", 
+                                        rank == 7 ~ "dairy", 
+                                        rank == 8 ~ "sugar", 
+                                        TRUE ~ "oils"),
+           i.check.old_value = case_when(rank == 1 ~ as.character(cereals),
+                                         rank == 2 ~ as.character(pulses),
+                                         rank == 3 ~ as.character(vegetables), 
+                                         rank == 4 ~ as.character(fruits), 
+                                         rank == 5 ~ as.character(condiments), 
+                                         rank == 6 ~ as.character(protein), 
+                                         rank == 7 ~ as.character(dairy), 
+                                         rank == 8 ~ as.character(sugar), 
+                                         TRUE ~ as.character(oils))
+    ) %>% 
+    supporteR::batch_select_rename(input_selection_str = "i.check.", input_replacement_str = "")
+
+# add other checks to the list
+list_log_refugee$fcs_same_values <- df_fcs_same_values
+
 
 # silhouette
 # NOTE: the column for "col_admin" is kept in the data
