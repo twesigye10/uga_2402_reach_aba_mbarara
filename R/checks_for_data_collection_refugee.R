@@ -91,7 +91,7 @@ df_other_checks_refugee <- cts_format_other_specify(input_tool_data = df_tool_da
 list_log_refugee$other_log <- df_other_checks_refugee
 
 # values entered is the same across food groups
-df_fcs_same_values <- df_tool_data %>%  
+df_fcs_same_values <- df_tool_data_refugee %>%  
     filter(if_all(c(cereals, pulses, vegetables, fruits, condiments, 
                     protein, dairy, sugar, oils), ~ cereals == .x))  %>% 
     mutate(i.check.change_type = "change_response",
