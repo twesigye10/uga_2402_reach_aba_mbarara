@@ -92,36 +92,36 @@ list_log_refugee$other_log <- df_other_checks_refugee
 
 # values entered is the same across food groups
 df_fcs_same_values <- df_tool_data_refugee %>%  
-    filter(if_all(c(cereals, pulses, vegetables, fruits, condiments, 
-                    protein, dairy, sugar, oils), ~ cereals == .x))  %>% 
+    filter(if_all(c(fcs_cereals, fcs_pulses, fcs_vegetables, fcs_fruits, fcs_condiments, 
+                    fcs_protein, fcs_dairy, fcs_sugar, fcs_oils), ~ fcs_cereals == .x))  %>% 
     mutate(i.check.uuid = `_uuid`,
            i.check.change_type = "change_response",
            i.check.question = "cereals",
-           i.check.old_value = as.character(cereals),
+           i.check.old_value = as.character(fcs_cereals),
            i.check.new_value = "NA",
            i.check.issue = "Same fcs values",
            i.check.comment = "") %>% 
     slice(rep(1:n(), each = 9)) %>%  
     group_by(i.check.uuid, i.check.change_type,  i.check.question,  i.check.old_value) %>%  
     mutate(rank = row_number(),
-           i.check.question = case_when(rank == 1 ~ "cereals", 
-                                        rank == 2 ~ "pulses",
-                                        rank == 3 ~ "vegetables", 
-                                        rank == 4 ~ "fruits", 
-                                        rank == 5 ~ "condiments", 
-                                        rank == 6 ~ "protein", 
-                                        rank == 7 ~ "dairy", 
-                                        rank == 8 ~ "sugar", 
+           i.check.question = case_when(rank == 1 ~ "fcs_cereals", 
+                                        rank == 2 ~ "fcs_pulses",
+                                        rank == 3 ~ "fcs_vegetables", 
+                                        rank == 4 ~ "fcs_fruits", 
+                                        rank == 5 ~ "fcs_condiments", 
+                                        rank == 6 ~ "fcs_protein", 
+                                        rank == 7 ~ "fcs_dairy", 
+                                        rank == 8 ~ "fcs_sugar", 
                                         TRUE ~ "oils"),
-           i.check.old_value = case_when(rank == 1 ~ as.character(cereals),
-                                         rank == 2 ~ as.character(pulses),
-                                         rank == 3 ~ as.character(vegetables), 
-                                         rank == 4 ~ as.character(fruits), 
-                                         rank == 5 ~ as.character(condiments), 
-                                         rank == 6 ~ as.character(protein), 
-                                         rank == 7 ~ as.character(dairy), 
-                                         rank == 8 ~ as.character(sugar), 
-                                         TRUE ~ as.character(oils))
+           i.check.old_value = case_when(rank == 1 ~ as.character(fcs_cereals),
+                                         rank == 2 ~ as.character(fcs_pulses),
+                                         rank == 3 ~ as.character(fcs_vegetables), 
+                                         rank == 4 ~ as.character(fcs_fruits), 
+                                         rank == 5 ~ as.character(fcs_condiments), 
+                                         rank == 6 ~ as.character(fcs_protein), 
+                                         rank == 7 ~ as.character(fcs_dairy), 
+                                         rank == 8 ~ as.character(fcs_sugar), 
+                                         TRUE ~ as.character(fcs_oils))
     ) %>% 
     supporteR::batch_select_rename(input_selection_str = "i.check.", input_replacement_str = "")
 
