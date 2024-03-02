@@ -116,7 +116,7 @@ list_log_host$other_log_roster <- df_other_checks_host_roster
 # check duplicate uuids ---------------------------------------------------
 
 df_duplicate_uuids <- cts_checks_duplicate_uuids(input_tool_data = df_tool_data_host)
-list_log_refugee$duplicate_uuid_log <- df_duplicate_uuids
+list_log_host$duplicate_uuid_log <- df_duplicate_uuids
 
 
 # loops outliers ----------------------------------------------------------
@@ -141,7 +141,7 @@ df_potential_loop_outliers_roster_h <- df_loop_outliers_roster_h$potential_outli
            i.check.sheet = "hh_roster",
            i.check.index = index) %>% 
     batch_select_rename()
-list_log_refugee$outliers_roster_log_h <- df_potential_loop_outliers_roster_h
+list_log_host$outliers_roster_log_h <- df_potential_loop_outliers_roster_h
 
 # income
 df_loop_outliers_income_h <- cleaningtools::check_outliers(dataset = df_loop_h_income  %>%  mutate(loop_uuid = paste0(`_submission__uuid`, " * ", `_index`)), 
@@ -163,7 +163,7 @@ df_potential_loop_outliers_income_h <- df_loop_outliers_income_h$potential_outli
            i.check.sheet = "hh_roster",
            i.check.index = index) %>% 
     batch_select_rename()
-list_log_refugee$outliers_income_log_h <- df_potential_loop_outliers_income_h
+list_log_host$outliers_income_log_h <- df_potential_loop_outliers_income_h
 
 
 # silhouette --------------------------------------------------------------
