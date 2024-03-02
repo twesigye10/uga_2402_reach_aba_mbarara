@@ -119,6 +119,30 @@ df_duplicate_uuids <- cts_checks_duplicate_uuids(input_tool_data = df_tool_data_
 list_log_refugee$duplicate_uuid_log <- df_duplicate_uuids
 
 
+# loops outliers ----------------------------------------------------------
+
+df_loop_outliers_roster <- cleaningtools::check_outliers(dataset = df_loop_r_roster  %>%  mutate(loop_uuid = paste0(`_submission__uuid`, " * ", `_index`)), 
+                                                        uuid_column = "loop_uuid", strongness_factor = 3,
+                                                        sm_separator = "/") 
+
+df_potential_loop_outliers_roster <- df_loop_outliers_roster$potential_outliers %>% 
+    separate_wider_delim(cols = uuid, delim = " * ", names = c("i.check.uuid", "index")) %>% 
+    mutate(i.check.change_type = "change_response",
+           i.check.question = question,
+           i.check.old_value = as.character(old_value),
+           i.check.new_value = "NA",
+           i.check.issue = issue,
+           i.check.description = "",
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "hh_roster",
+           i.check.index = index) %>% 
+    batch_select_rename()
+list_log_refugee$outliers_roster_log <- df_potential_loop_outliers_roster
+
+
 # silhouette --------------------------------------------------------------
 
 # NOTE: the column for "col_admin" is kept in the data
