@@ -9,7 +9,22 @@ source("support_files/credentials.R")
 # read data ---------------------------------------------------------------
 
 loc_data_refugee <- "inputs/UGA2402_aba_mbarara_refugee_data.xlsx"
-df_tool_data_refugee <- readxl::read_excel(loc_data_refugee)
+
+# main data
+data_nms_refugee <- names(readxl::read_excel(path = loc_data_refugee, n_max = 300))
+c_types_refugee <- ifelse(str_detect(string = data_nms_refugee, pattern = "_other$"), "text", "guess")
+df_tool_data_refugee <- readxl::read_excel(loc_data_refugee, col_types = c_types_refugee)
+
+# loops
+# roster
+data_nms_r_roster <- names(readxl::read_excel(path = loc_data_refugee, n_max = 300, sheet = "hh_roster"))
+c_types_r_roster <- ifelse(str_detect(string = data_nms_r_roster, pattern = "_other$"), "text", "guess")
+df_loop_r_roster <- readxl::read_excel(loc_data_refugee, col_types = c_types_r_roster, sheet = "hh_roster")
+# income
+data_nms_r_income <- names(readxl::read_excel(path = loc_data_refugee, n_max = 300, sheet = "grp_income_received"))
+c_types_r_income <- ifelse(str_detect(string = data_nms_r_income, pattern = "_other$"), "text", "guess")
+df_loop_r_income <- readxl::read_excel(loc_data_refugee, col_types = c_types_r_income, sheet = "grp_income_received")
+
 
 # tool
 loc_tool_refugee <- "inputs/UGA2402_aba_mbarara_refugee_tool.xlsx"

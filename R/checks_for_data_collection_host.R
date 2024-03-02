@@ -9,7 +9,22 @@ source("support_files/credentials.R")
 # read data ---------------------------------------------------------------
 
 loc_data_host <- "inputs/UGA2402_aba_mbarara_host_data.xlsx"
-df_tool_data_host <- readxl::read_excel(loc_data_host)
+
+# main data
+data_nms_host <- names(readxl::read_excel(path = loc_data_host, n_max = 300))
+c_types_host <- ifelse(str_detect(string = data_nms_host, pattern = "_other$"), "text", "guess")
+df_tool_data_host <- readxl::read_excel(loc_data_host, col_types = c_types_host)
+
+# loops
+# roster
+data_nms_h_roster <- names(readxl::read_excel(path = loc_data_host, n_max = 300, sheet = "hh_roster"))
+c_types_h_roster <- ifelse(str_detect(string = data_nms_h_roster, pattern = "_other$"), "text", "guess")
+df_loop_h_roster <- readxl::read_excel(loc_data_host, col_types = c_types_h_roster, sheet = "hh_roster")
+# income
+data_nms_h_income <- names(readxl::read_excel(path = loc_data_host, n_max = 300, sheet = "grp_income_received"))
+c_types_h_income <- ifelse(str_detect(string = data_nms_h_income, pattern = "_other$"), "text", "guess")
+df_loop_h_income <- readxl::read_excel(loc_data_host, col_types = c_types_h_income, sheet = "grp_income_received")
+
 
 # tool
 loc_tool_host <- "inputs/UGA2402_aba_mbarara_host_tool.xlsx"
@@ -30,21 +45,20 @@ if (dir.exists("inputs/audit_files_host")) {
              mode = "cherry-pick")
 }
 
-# check pii ---------------------------------------------------------------
 
+# cleaningtools checks ----------------------------------------------------
+
+# check pii
 pii_cols <- c("telephone","contact","name","gps","latitude","logitude","contact","geopoint")
 
 pii_from_data <- cleaningtools::check_pii(dataset = df_tool_data_host, element_name = "checked_dataset", uuid_column = "_uuid")
 pii_from_data$potential_PII
 
-# duration ----------------------------------------------------------------
+
 # read audit file
 audit_list_data <- cleaningtools::create_audit_list(audit_zip_path = "inputs/audit_files_host.zip")
 # add duration from audit
 df_tool_data_with_audit_time <- cleaningtools::add_duration_from_audit(df_tool_data_host, uuid_column = "_uuid", audit_list = audit_list_data)
-
-
-# Exporting the flags in excel --------------------------------------------
 
 # outliers columns not to check
 outlier_cols_not_4_checking <- df_tool_data_host %>% 
@@ -54,9 +68,9 @@ outlier_cols_not_4_checking <- df_tool_data_host %>%
 # logical checks data
 df_list_logical_checks_host <- read_csv("inputs/logical_checks_aba_mbarara_host.csv")
 
-# create_combined_log()
+# cleaningtools processing
 list_log_host <- df_tool_data_with_audit_time %>%
-    check_pii(uuid_column = "_uuid") %>%
+    # check_pii(uuid_column = "_uuid") %>%
     check_duration(column_to_check = "duration_audit_sum_all_minutes",
                    uuid_column = "_uuid",
                    log_name = "duration_log",
@@ -71,7 +85,7 @@ list_log_host <- df_tool_data_with_audit_time %>%
                           log_name = "soft_duplicate_log",
                           threshold = 7,
                           return_all_results = FALSE) %>%
-    check_value(uuid_column = "_uuid", values_to_look = c(666, 99, 999, 9999, 98, 88, 888, 8888)) %>% 
+    check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999, 88, 888, 8888)) %>% 
     check_logical_with_list(uuid_column = "_uuid",
                             list_of_check = df_list_logical_checks_host,
                             check_id_column = "check_id",
@@ -81,7 +95,8 @@ list_log_host <- df_tool_data_with_audit_time %>%
                             bind_checks = TRUE )
 
 
-# other checks
+
+# other checks ------------------------------------------------------------
 
 df_other_checks_host <- cts_other_specify(input_tool_data = df_tool_data_host, 
                                                  input_uuid_col = "_uuid", 
@@ -89,12 +104,15 @@ df_other_checks_host <- cts_other_specify(input_tool_data = df_tool_data_host,
                                                  input_choices = df_choices_host)
 list_log_host$other_log <- df_other_checks_host
 
-# check duplicate uuids
+
+# check duplicate uuids ---------------------------------------------------
 
 df_duplicate_uuids <- cts_checks_duplicate_uuids(input_tool_data = df_tool_data_host)
 list_log_refugee$duplicate_uuid_log <- df_duplicate_uuids
 
-# silhouette
+
+# silhouette --------------------------------------------------------------
+
 # NOTE: the column for "col_admin" is kept in the data
 
 omit_cols_sil <- c("start", "end", "today", "duration", "duration_minutes",
