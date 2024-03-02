@@ -83,7 +83,7 @@ list_log_refugee <- df_tool_data_with_audit_time %>%
 
 # other checks
 
-df_other_checks_refugee <- cts_format_other_specify(input_tool_data = df_tool_data_refugee, 
+df_other_checks_refugee <- cts_other_specify(input_tool_data = df_tool_data_refugee, 
                                                     input_uuid_col = "_uuid", 
                                                     input_survey = df_survey_refugee, 
                                                     input_choices = df_choices_refugee)

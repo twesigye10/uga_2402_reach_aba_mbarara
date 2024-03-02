@@ -83,7 +83,7 @@ list_log_host <- df_tool_data_with_audit_time %>%
 
 # other checks
 
-df_other_checks_host <- cts_format_other_specify(input_tool_data = df_tool_data_host, 
+df_other_checks_host <- cts_other_specify(input_tool_data = df_tool_data_host, 
                                                  input_uuid_col = "_uuid", 
                                                  input_survey = df_survey_host, 
                                                  input_choices = df_choices_host)
