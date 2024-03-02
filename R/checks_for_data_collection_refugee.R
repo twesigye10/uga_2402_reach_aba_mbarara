@@ -45,21 +45,22 @@ if (dir.exists("inputs/audit_files_refugee")) {
              mode = "cherry-pick")
 }
 
-# check pii ---------------------------------------------------------------
+
+# cleaningtools checks ----------------------------------------------------
+
+
+# check pii
 
 pii_cols <- c("telephone","contact","name","gps","latitude","logitude","contact","geopoint")
 
 pii_from_data <- cleaningtools::check_pii(dataset = df_tool_data_refugee, element_name = "checked_dataset", uuid_column = "_uuid")
 pii_from_data$potential_PII
 
-# duration ----------------------------------------------------------------
+# duration
 # read audit file
 audit_list_data <- cleaningtools::create_audit_list(audit_zip_path = "inputs/audit_files_refugee.zip")
 # add duration from audit
 df_tool_data_with_audit_time <- cleaningtools::add_duration_from_audit(df_tool_data_refugee, uuid_column = "_uuid", audit_list = audit_list_data)
-
-
-# Exporting the flags in excel --------------------------------------------
 
 # outliers columns not to check
 outlier_cols_not_4_checking <- df_tool_data_refugee %>% 
@@ -69,7 +70,7 @@ outlier_cols_not_4_checking <- df_tool_data_refugee %>%
 # logical checks data
 df_list_logical_checks_refugee <- read_csv("inputs/logical_checks_aba_mbarara_refugee.csv")
 
-# create_combined_log()
+# combine cleaningtools checks
 list_log_refugee <- df_tool_data_with_audit_time %>%
     check_pii(uuid_column = "_uuid") %>%
     check_duration(column_to_check = "duration_audit_sum_all_minutes",
@@ -96,7 +97,8 @@ list_log_refugee <- df_tool_data_with_audit_time %>%
                             bind_checks = TRUE )
 
 
-# other checks
+
+# other checks ------------------------------------------------------------
 
 df_other_checks_refugee <- cts_other_specify(input_tool_data = df_tool_data_refugee, 
                                                     input_uuid_col = "_uuid", 
@@ -104,10 +106,23 @@ df_other_checks_refugee <- cts_other_specify(input_tool_data = df_tool_data_refu
                                                     input_choices = df_choices_refugee)
 list_log_refugee$other_log <- df_other_checks_refugee
 
-# check duplicate uuids
+# other checks roster
+df_other_checks_refugee_roster <- cts_other_specify_repeats(input_repeat_data = df_loop_r_roster, 
+                                                    input_uuid_col = "_submission__uuid", 
+                                                    input_survey = df_survey_refugee, 
+                                                    input_choices = df_choices_refugee,
+                                                    input_sheet_name = "hh_roster",
+                                                    input_index_col = "_index")
+list_log_refugee$other_log_roster <- df_other_checks_refugee_roster
+
+
+# check duplicate uuids ---------------------------------------------------
 
 df_duplicate_uuids <- cts_checks_duplicate_uuids(input_tool_data = df_tool_data_refugee)
 list_log_refugee$duplicate_uuid_log <- df_duplicate_uuids
+
+
+# FCS ---------------------------------------------------------------------
 
 # values entered is the same across food groups
 df_fcs_same_values <- df_tool_data_refugee %>%  
@@ -148,7 +163,9 @@ df_fcs_same_values <- df_tool_data_refugee %>%
 list_log_refugee$fcs_same_values <- df_fcs_same_values
 
 
-# silhouette
+
+# silhouette --------------------------------------------------------------
+
 # NOTE: the column for "col_admin" is kept in the data
 
 omit_cols_sil <- c("start", "end", "today", "duration", "duration_minutes",
