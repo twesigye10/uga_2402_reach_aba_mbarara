@@ -87,8 +87,12 @@ df_other_checks_refugee <- cts_other_specify(input_tool_data = df_tool_data_refu
                                                     input_uuid_col = "_uuid", 
                                                     input_survey = df_survey_refugee, 
                                                     input_choices = df_choices_refugee)
-# add other checks to the list
 list_log_refugee$other_log <- df_other_checks_refugee
+
+# check duplicate uuids
+
+df_duplicate_uuids <- cts_checks_duplicate_uuids(input_tool_data = df_tool_data_refugee)
+list_log_refugee$duplicate_uuid_log <- df_duplicate_uuids
 
 # values entered is the same across food groups
 df_fcs_same_values <- df_tool_data_refugee %>%  

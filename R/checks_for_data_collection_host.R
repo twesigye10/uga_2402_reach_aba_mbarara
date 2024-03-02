@@ -87,8 +87,12 @@ df_other_checks_host <- cts_other_specify(input_tool_data = df_tool_data_host,
                                                  input_uuid_col = "_uuid", 
                                                  input_survey = df_survey_host, 
                                                  input_choices = df_choices_host)
-# add other checks to the list
 list_log_host$other_log <- df_other_checks_host
+
+# check duplicate uuids
+
+df_duplicate_uuids <- cts_checks_duplicate_uuids(input_tool_data = df_tool_data_host)
+list_log_refugee$duplicate_uuid_log <- df_duplicate_uuids
 
 # silhouette
 # NOTE: the column for "col_admin" is kept in the data
