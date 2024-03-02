@@ -121,6 +121,51 @@ list_log_refugee$other_log_roster <- df_other_checks_refugee_roster
 df_duplicate_uuids <- cts_checks_duplicate_uuids(input_tool_data = df_tool_data_refugee)
 list_log_refugee$duplicate_uuid_log <- df_duplicate_uuids
 
+# loops outliers ----------------------------------------------------------
+
+# roster
+df_loop_outliers_roster_r <- cleaningtools::check_outliers(dataset = df_loop_r_roster  %>%  mutate(loop_uuid = paste0(`_submission__uuid`, " * ", `_index`)), 
+                                                           uuid_column = "loop_uuid", strongness_factor = 3,
+                                                           sm_separator = "/") 
+
+df_potential_loop_outliers_roster_r <- df_loop_outliers_roster_r$potential_outliers %>% 
+    separate_wider_delim(cols = uuid, delim = " * ", names = c("i.check.uuid", "index")) %>% 
+    mutate(i.check.change_type = "change_response",
+           i.check.question = question,
+           i.check.old_value = as.character(old_value),
+           i.check.new_value = "NA",
+           i.check.issue = issue,
+           i.check.description = "",
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "hh_roster",
+           i.check.index = index) %>% 
+    batch_select_rename()
+list_log_refugee$outliers_roster_log_r <- df_potential_loop_outliers_roster_r
+
+# income
+df_loop_outliers_income_r <- cleaningtools::check_outliers(dataset = df_loop_r_income  %>%  mutate(loop_uuid = paste0(`_submission__uuid`, " * ", `_index`)), 
+                                                           uuid_column = "loop_uuid", strongness_factor = 3,
+                                                           sm_separator = "/") 
+
+df_potential_loop_outliers_income_r <- df_loop_outliers_income_r$potential_outliers %>% 
+    separate_wider_delim(cols = uuid, delim = " * ", names = c("i.check.uuid", "index")) %>% 
+    mutate(i.check.change_type = "change_response",
+           i.check.question = question,
+           i.check.old_value = as.character(old_value),
+           i.check.new_value = "NA",
+           i.check.issue = issue,
+           i.check.description = "",
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "hh_roster",
+           i.check.index = index) %>% 
+    batch_select_rename()
+list_log_refugee$outliers_income_log_r <- df_potential_loop_outliers_income_r
 
 # FCS ---------------------------------------------------------------------
 
@@ -159,7 +204,6 @@ df_fcs_same_values <- df_tool_data_refugee %>%
     ) %>% 
     supporteR::batch_select_rename(input_selection_str = "i.check.", input_replacement_str = "")
 
-# add other checks to the list
 list_log_refugee$fcs_same_values <- df_fcs_same_values
 
 
