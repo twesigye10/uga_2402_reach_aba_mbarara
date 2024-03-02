@@ -182,7 +182,7 @@ df_combined_log_refugee <- create_combined_log_keep_change_type(dataset_name = "
 
 # create workbook ---------------------------------------------------------
 # prep data
-cols_to_add_to_log <- c("enumerator_id", "today", "interview_cell")
+cols_to_add_to_log <- c("enumerator_id", "point_number", "today", "interview_cell")
 
 tool_support <- df_combined_log_refugee$checked_dataset %>% 
     select(uuid = `_uuid`, any_of(cols_to_add_to_log))
