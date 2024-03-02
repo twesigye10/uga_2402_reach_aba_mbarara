@@ -162,7 +162,7 @@ df_potential_loop_outliers_income_r <- df_loop_outliers_income_r$potential_outli
            i.check.comment = "",
            i.check.reviewed = "",
            i.check.so_sm_choices = "",
-           i.check.sheet = "hh_roster",
+           i.check.sheet = "grp_income_received",
            i.check.index = index) %>% 
     batch_select_rename()
 list_log_refugee$outliers_income_log_r <- df_potential_loop_outliers_income_r
