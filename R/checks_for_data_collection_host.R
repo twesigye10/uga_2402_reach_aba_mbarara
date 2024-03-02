@@ -104,6 +104,14 @@ df_other_checks_host <- cts_other_specify(input_tool_data = df_tool_data_host,
                                                  input_choices = df_choices_host)
 list_log_host$other_log <- df_other_checks_host
 
+# other checks roster
+df_other_checks_host_roster <- cts_other_specify_repeats(input_repeat_data = df_loop_h_roster, 
+                                                         input_uuid_col = "_submission__uuid", 
+                                                         input_survey = df_survey_host, 
+                                                         input_choices = df_choices_host,
+                                                         input_sheet_name = "hh_roster",
+                                                         input_index_col = "_index")
+list_log_host$other_log_roster <- df_other_checks_host_roster
 
 # check duplicate uuids ---------------------------------------------------
 
