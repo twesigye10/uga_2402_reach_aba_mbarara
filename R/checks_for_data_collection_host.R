@@ -170,6 +170,45 @@ df_potential_loop_outliers_income_h <- df_loop_outliers_income_h$potential_outli
 list_log_host$outliers_income_log_h <- df_potential_loop_outliers_income_h
 
 
+# spatial checks ----------------------------------------------------------
+
+if("status" %in% colnames(df_sample_data_host)){
+    sample_pt_nos_host <- df_sample_data_host %>%
+        mutate(unique_pt_number = paste0(status, "_", Name)) %>%
+        pull(unique_pt_number) %>%
+        unique()
+}else{
+    sample_pt_nos_host <- df_sample_data_host %>%
+        mutate(unique_pt_number = Name) %>%
+        pull(unique_pt_number) %>%
+        unique()
+}
+
+# duplicate point numbers
+df_duplicate_pt_nos_host <- cts_check_duplicate_pt_numbers(input_tool_data = df_tool_data_host,
+                                                           input_uuid_col  = "_uuid",
+                                                           input_location_col = "interview_cell",
+                                                           input_point_id_col = "point_number",
+                                                           input_sample_pt_nos_list = sample_pt_nos_host)
+
+list_log_host$duplicate_pt_nos <- df_duplicate_pt_nos_host
+
+# point number does not exist in sample
+df_pt_number_not_in_sample_host <- cts_check_pt_number_not_in_samples(input_tool_data = df_tool_data_host,
+                                                                      input_uuid_col  = "_uuid",
+                                                                      input_point_id_col = "point_number",
+                                                                      input_sample_pt_nos_list = sample_pt_nos_host)
+list_log_host$pt_number_not_in_sample <- df_pt_number_not_in_sample_host
+
+# check for exceeded threshold distance
+df_greater_thresh_distance_host <- cts_check_threshold_distance(input_sample_data = df_sample_data_host,
+                                                                input_tool_data = df_tool_data_host,
+                                                                input_uuid_col  = "_uuid",
+                                                                input_point_id_col = "point_number",
+                                                                input_threshold_dist = 150)
+list_log_host$greater_thresh_distance <- df_greater_thresh_distance_host
+
+
 # silhouette --------------------------------------------------------------
 
 # NOTE: the column for "col_admin" is kept in the data
