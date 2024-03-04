@@ -211,6 +211,44 @@ df_fcs_same_values <- df_tool_data_refugee %>%
 list_log_refugee$fcs_same_values <- df_fcs_same_values
 
 
+# spatial checks ----------------------------------------------------------
+
+if("status" %in% colnames(df_sample_data_refugee)){
+    sample_pt_nos_refugee <- df_sample_data_refugee %>%
+        mutate(unique_pt_number = paste0(status, "_", Name)) %>%
+        pull(unique_pt_number) %>%
+        unique()
+}else{
+    sample_pt_nos_refugee <- df_sample_data_refugee %>%
+        mutate(unique_pt_number = Name) %>%
+        pull(unique_pt_number) %>%
+        unique()
+}
+
+# duplicate point numbers
+df_duplicate_pt_nos_refugee <- cts_check_duplicate_pt_numbers(input_tool_data = df_tool_data_refugee,
+                                                              input_uuid_col  = "_uuid",
+                                                              input_location_col = "interview_cell",
+                                                              input_point_id_col = "point_number",
+                                                              input_sample_pt_nos_list = sample_pt_nos_refugee)
+
+list_log_refugee$duplicate_pt_nos <- df_duplicate_pt_nos_refugee
+
+# point number does not exist in sample
+df_pt_number_not_in_sample_refugee <- cts_check_pt_number_not_in_samples(input_tool_data = df_tool_data_refugee,
+                                                                         input_uuid_col  = "_uuid",
+                                                                         input_point_id_col = "point_number",
+                                                                         input_sample_pt_nos_list = sample_pt_nos_refugee)
+list_log_refugee$pt_number_not_in_sample <- df_pt_number_not_in_sample_refugee
+
+# check for exceeded threshold distance
+df_greater_thresh_distance_refugee <- cts_check_threshold_distance(input_sample_data = df_sample_data_refugee,
+                                                                   input_tool_data = df_tool_data_refugee,
+                                                                   input_uuid_col  = "_uuid",
+                                                                   input_point_id_col = "point_number",
+                                                                   input_threshold_dist = 150)
+list_log_refugee$greater_thresh_distance <- df_greater_thresh_distance_refugee
+    
 
 # silhouette --------------------------------------------------------------
 
