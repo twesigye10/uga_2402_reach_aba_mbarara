@@ -45,6 +45,10 @@ if (dir.exists("inputs/audit_files_refugee")) {
              mode = "cherry-pick")
 }
 
+# GIS layer for samples
+df_sample_data_refugee <- sf::st_read("inputs/UGA2402_aba_mbarara_refugee_host_samples.gpkg", quiet = TRUE) %>% 
+    filter(status %in% c("refugee"))
+
 
 # cleaningtools checks ----------------------------------------------------
 
