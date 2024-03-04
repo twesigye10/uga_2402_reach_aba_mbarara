@@ -312,7 +312,11 @@ tool_support <- df_combined_log_refugee$checked_dataset %>%
 df_prep_checked_data_refugee <- df_combined_log_refugee$checked_dataset
 df_prep_cleaning_log_refugee <- df_combined_log_refugee$cleaning_log %>%
     left_join(tool_support, by = "uuid") %>% 
-    relocate(any_of(cols_to_add_to_log), .after = uuid)
+    relocate(any_of(cols_to_add_to_log), .after = uuid) %>% 
+    add_qn_label_to_cl(input_cl_name_col = "question",
+                       input_tool = df_survey_refugee, 
+                       input_tool_name_col = "name", 
+                       input_tool_label_col = "label")
 
 df_prep_readme_refugee <- tibble::tribble(
     ~change_type_validation,                       ~description,

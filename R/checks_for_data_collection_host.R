@@ -272,7 +272,11 @@ tool_support <- df_combined_log_host$checked_dataset %>%
 df_prep_checked_data_host <- df_combined_log_host$checked_dataset
 df_prep_cleaning_log_host <- df_combined_log_host$cleaning_log %>%
     left_join(tool_support, by = "uuid") %>% 
-    relocate(any_of(cols_to_add_to_log), .after = uuid)
+    relocate(any_of(cols_to_add_to_log), .after = uuid) %>% 
+    add_qn_label_to_cl(input_cl_name_col = "question",
+                       input_tool = df_survey_host, 
+                       input_tool_name_col = "name", 
+                       input_tool_label_col = "label")
 
 df_prep_readme_host <- tibble::tribble(
     ~change_type_validation,                       ~description,
