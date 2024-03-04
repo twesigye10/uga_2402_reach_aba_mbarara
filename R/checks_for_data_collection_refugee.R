@@ -72,7 +72,7 @@ df_list_logical_checks_refugee <- read_csv("inputs/logical_checks_aba_mbarara_re
 
 # combine cleaningtools checks
 list_log_refugee <- df_tool_data_with_audit_time %>%
-    check_pii(uuid_column = "_uuid") %>%
+    # check_pii(uuid_column = "_uuid") %>%
     check_duration(column_to_check = "duration_audit_sum_all_minutes",
                    uuid_column = "_uuid",
                    log_name = "duration_log",
