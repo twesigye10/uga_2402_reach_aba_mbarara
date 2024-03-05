@@ -2,6 +2,7 @@ library(tidyverse)
 library(cleaningtools)
 library(httr)
 library(supporteR)
+library(openxlsx)
 
 source("R/support_functions.R")
 source("support_files/credentials.R")
