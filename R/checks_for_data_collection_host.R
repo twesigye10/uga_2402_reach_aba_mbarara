@@ -89,7 +89,7 @@ list_log_host <- df_tool_data_with_audit_time %>%
                           idnk_value = "dk",
                           sm_separator = "/",
                           log_name = "soft_duplicate_log",
-                          threshold = 30,
+                          threshold = 25,
                           return_all_results = FALSE) %>%
     check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999, 88, 888, 8888)) %>% 
     check_logical_with_list(uuid_column = "_uuid",
