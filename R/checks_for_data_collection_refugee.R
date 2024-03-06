@@ -92,14 +92,14 @@ list_log_refugee <- df_tool_data_with_audit_time %>%
                           log_name = "soft_duplicate_log",
                           threshold = 7,
                           return_all_results = FALSE) %>%
-    check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999)) %>% 
-    check_logical_with_list(uuid_column = "_uuid",
-                            list_of_check = df_list_logical_checks_refugee,
-                            check_id_column = "check_id",
-                            check_to_perform_column = "check_to_perform",
-                            columns_to_clean_column = "columns_to_clean",
-                            description_column = "description",
-                            bind_checks = TRUE )
+    check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999)) #%>% 
+    # check_logical_with_list(uuid_column = "_uuid",
+    #                         list_of_check = df_list_logical_checks_refugee,
+    #                         check_id_column = "check_id",
+    #                         check_to_perform_column = "check_to_perform",
+    #                         columns_to_clean_column = "columns_to_clean",
+    #                         description_column = "description",
+    #                         bind_checks = TRUE )
 
 
 
@@ -214,7 +214,7 @@ list_log_refugee$fcs_same_values <- df_fcs_same_values
 
 # spatial checks ----------------------------------------------------------
 
-if("status" %in% colnames(df_sample_data_refugee)){
+if("status" %in% colnames(df_sample_data_refugee) & "status" %in% colnames(df_tool_data_refugee)){
     sample_pt_nos_refugee <- df_sample_data_refugee %>%
         mutate(unique_pt_number = paste0(status, "_", Name)) %>%
         pull(unique_pt_number) %>%

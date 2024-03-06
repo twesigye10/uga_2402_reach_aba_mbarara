@@ -173,7 +173,7 @@ list_log_host$outliers_income_log_h <- df_potential_loop_outliers_income_h
 
 # spatial checks ----------------------------------------------------------
 
-if("status" %in% colnames(df_sample_data_host)){
+if("status" %in% colnames(df_sample_data_host) & "status" %in% colnames(df_tool_data_host)){
     sample_pt_nos_host <- df_sample_data_host %>%
         mutate(unique_pt_number = paste0(status, "_", Name)) %>%
         pull(unique_pt_number) %>%
