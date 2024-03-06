@@ -66,7 +66,7 @@ pii_from_data$potential_PII
 # read audit file
 audit_list_data <- cleaningtools::create_audit_list(audit_zip_path = "inputs/audit_files_refugee.zip")
 # add duration from audit
-df_tool_data_with_audit_time <- cleaningtools::add_duration_from_audit(df_tool_data_refugee, uuid_column = "_uuid", audit_list = audit_list_data)
+df_tool_data_with_audit_time_refugee <- cleaningtools::add_duration_from_audit(df_tool_data_refugee, uuid_column = "_uuid", audit_list = audit_list_data)
 
 # outliers columns not to check
 outlier_cols_not_4_checking <- df_tool_data_refugee %>% 
@@ -77,7 +77,7 @@ outlier_cols_not_4_checking <- df_tool_data_refugee %>%
 df_list_logical_checks_refugee <- read_csv("inputs/logical_checks_aba_mbarara_refugee.csv")
 
 # combine cleaningtools checks
-list_log_refugee <- df_tool_data_with_audit_time %>%
+list_log_refugee <- df_tool_data_with_audit_time_refugee %>%
     # check_pii(uuid_column = "_uuid") %>%
     check_duration(column_to_check = "duration_audit_sum_all_minutes",
                    uuid_column = "_uuid",
