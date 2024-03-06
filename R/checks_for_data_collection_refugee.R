@@ -3,6 +3,7 @@ library(cleaningtools)
 library(httr)
 library(supporteR)
 library(openxlsx)
+library(cluster)
 
 source("R/support_functions.R")
 source("support_files/credentials.R")
@@ -269,7 +270,7 @@ df_sil_data <- calculateEnumeratorSimilarity(data = data_similartiy_sil,
     mutate(si2= abs(si))
 
 df_sil_processed <- df_sil_data[order(df_sil_data$`si2`, decreasing = TRUE),!colnames(df_sil_data)%in%"si2"] %>%  
-    filter(si > 0.6) %>% 
+    # filter(si > 0.6) %>% 
     mutate(i.check.uuid = "all",
            i.check.question = NA_character_,
            i.check.issue = paste("Potential similar responses for enumerator. si: ",si)) %>% 

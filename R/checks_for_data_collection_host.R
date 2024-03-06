@@ -3,6 +3,7 @@ library(cleaningtools)
 library(httr)
 library(supporteR)
 library(openxlsx)
+library(cluster)
 
 source("R/support_functions.R")
 source("support_files/credentials.R")
