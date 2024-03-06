@@ -217,7 +217,9 @@ list_log_host$greater_thresh_distance <- df_greater_thresh_distance_host
 
 omit_cols_sil <- c("start", "end", "today", "duration", "duration_minutes",
                    "deviceid", "audit", "audit_URL", "instance_name", "end_survey",
-                   "geopoint", "_geopoint_latitude", "_geopoint_altitude", "_geopoint_precision", "_id" ,"_submission_time","_validation_status","_notes","_status","_submitted_by","_tags","_index")
+                   "geopoint", "_geopoint_latitude", "_geopoint_longitude","_geopoint_altitude", 
+                   "_geopoint_precision", "_id" ,"_submission_time","_validation_status","_notes",
+                   "_status","_submitted_by","_tags","_index", "__version__" )
 
 data_similartiy_sil <- df_tool_data_host %>% 
     select(- any_of(omit_cols_sil), - matches("_note$|^note_"))
