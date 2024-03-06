@@ -1,6 +1,8 @@
 library(tidyverse)
 library(cleaningtools)
 library(httr)
+library(sf)
+library(glue)
 library(supporteR)
 library(openxlsx)
 library(cluster)
@@ -32,6 +34,10 @@ df_loop_r_income <- readxl::read_excel(loc_data_refugee, col_types = c_types_r_i
 loc_tool_refugee <- "inputs/UGA2402_aba_mbarara_refugee_tool.xlsx"
 df_survey_refugee <- readxl::read_excel(loc_tool_refugee, sheet = "survey") 
 df_choices_refugee <- readxl::read_excel(loc_tool_refugee, sheet = "choices")
+
+# joining roster loop to main shet
+df_repeat_hh_roster_data <- df_tool_data_refugee %>% 
+    left_join(df_loop_r_roster, by = c("_uuid" = "_submission__uuid"))
 
 
 # download audit files
@@ -74,7 +80,8 @@ outlier_cols_not_4_checking <- df_tool_data_refugee %>%
     colnames()
 
 # logical checks data
-df_list_logical_checks_refugee <- read_csv("inputs/logical_checks_aba_mbarara_refugee.csv")
+df_list_logical_checks_refugee <- read_csv("inputs/logical_checks_aba_mbarara_refugee_overview.csv")%>% 
+    filter(!is.na(check_id))
 
 # combine cleaningtools checks
 list_log_refugee <- df_tool_data_with_audit_time_refugee %>%
@@ -93,15 +100,45 @@ list_log_refugee <- df_tool_data_with_audit_time_refugee %>%
                           log_name = "soft_duplicate_log",
                           threshold = 25,
                           return_all_results = FALSE) %>%
-    check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999)) %>% 
+    check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999))
+
+# logical checks
+df_main_plus_loop_logical_checks <- df_repeat_hh_roster_data %>%
     check_logical_with_list(uuid_column = "_uuid",
-                            list_of_check = df_list_logical_checks_refugee,
+                            list_of_check = df_list_logical_checks_host,
                             check_id_column = "check_id",
                             check_to_perform_column = "check_to_perform",
                             columns_to_clean_column = "columns_to_clean",
                             description_column = "description",
                             bind_checks = TRUE )
+list_log_refugee$logical_checks <- df_main_plus_loop_logical_checks$logical_all
 
+
+# other logical checks ----------------------------------------------------
+# respondent_data_check
+df_respondent_data_check <- df_repeat_hh_roster_data %>% 
+    group_by(`_uuid`) %>%
+    mutate(int.hoh_bio = ifelse(respondent_gender == gender & respondent_age == age, "given", "not")) %>% 
+    filter(!str_detect(string = paste(int.hoh_bio, collapse = ":"), pattern = "given")) %>% 
+    filter(row_number() == 1) %>% 
+    ungroup() %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "respondent_age",
+           i.check.old_value = as.character(respondent_age),
+           i.check.new_value = "NA",
+           i.check.issue = glue("respondent_data : {respondent_age}, {respondent_gender}, details not given in the hh_roster"),
+           i.check.description = "",
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "grp_hh_roster",
+           i.check.index = `_index.y`) %>% 
+    batch_select_rename()
+list_log_refugee$respondent_data_inconsistencies <- df_respondent_data_check
+
+   
 
 
 # other checks ------------------------------------------------------------
