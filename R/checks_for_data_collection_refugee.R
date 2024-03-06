@@ -93,14 +93,14 @@ list_log_refugee <- df_tool_data_with_audit_time_refugee %>%
                           log_name = "soft_duplicate_log",
                           threshold = 7,
                           return_all_results = FALSE) %>%
-    check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999)) %>% 
-    check_logical_with_list(uuid_column = "_uuid",
-                            list_of_check = df_list_logical_checks_refugee,
-                            check_id_column = "check_id",
-                            check_to_perform_column = "check_to_perform",
-                            columns_to_clean_column = "columns_to_clean",
-                            description_column = "description",
-                            bind_checks = TRUE )
+    check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999)) #%>% 
+    # check_logical_with_list(uuid_column = "_uuid",
+    #                         list_of_check = df_list_logical_checks_refugee,
+    #                         check_id_column = "check_id",
+    #                         check_to_perform_column = "check_to_perform",
+    #                         columns_to_clean_column = "columns_to_clean",
+    #                         description_column = "description",
+    #                         bind_checks = TRUE )
 
 
 
@@ -273,7 +273,8 @@ df_sil_processed <- df_sil_data[order(df_sil_data$`si2`, decreasing = TRUE),!col
     # filter(si > 0.6) %>%
     mutate(i.check.uuid = "all",
            i.check.question = NA_character_,
-           i.check.issue = paste("Potential similar responses for enumerator. si: ",si)) %>% 
+           i.check.issue = paste("silhouette flag"),
+           i.check.description = paste("Potential similar responses for enumerator. si: ",si)) %>% 
     batch_select_rename()
 
 # add other checks to the list

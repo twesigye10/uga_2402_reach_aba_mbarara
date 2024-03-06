@@ -89,7 +89,7 @@ list_log_host <- df_tool_data_with_audit_time %>%
                           idnk_value = "dk",
                           sm_separator = "/",
                           log_name = "soft_duplicate_log",
-                          threshold = 7,
+                          threshold = 30,
                           return_all_results = FALSE) %>%
     check_value(uuid_column = "_uuid", values_to_look = c(99, 999, 9999, 88, 888, 8888)) %>% 
     check_logical_with_list(uuid_column = "_uuid",
@@ -232,7 +232,8 @@ df_sil_processed <- df_sil_data[order(df_sil_data$`si2`, decreasing = TRUE),!col
     # filter(si > 0.6) %>% 
     mutate(i.check.uuid = "all",
            i.check.question = NA_character_,
-           i.check.issue = paste("Potential similar responses for enumerator. si: ",si)) %>% 
+           i.check.issue = paste("silhouette flag"),
+           i.check.description = paste("Potential similar responses for enumerator. si: ",si)) %>% 
     batch_select_rename()
 
 # add other checks to the list
