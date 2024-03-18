@@ -272,7 +272,7 @@ df_sil_processed <- df_sil_data[order(df_sil_data$`si2`, decreasing = TRUE),!col
     mutate(i.check.uuid = "all",
            i.check.question = NA_character_,
            i.check.issue = "silhouette flag",
-           i.check.description = glue::glue("Potential similar responses for enumerator:{enumerator_id}. si: {si}")) %>% 
+           i.check.description = glue::glue("Potential similar responses for enumerator:{enumerator_id}, interview_cell:{interview_cell}. si: {si}")) %>% 
     batch_select_rename()
 
 # add other checks to the list
@@ -321,7 +321,10 @@ df_prep_cleaning_log_host <- df_combined_log_host$cleaning_log %>%
                        input_tool_label_col = "label") %>% 
     mutate(enumerator_id = ifelse(issue %in% c("silhouette flag"), 
                                   str_replace(string = str_extract(string = description, pattern = "enumerator:[0-9]{1,3}"), pattern = "enumerator:", ""),
-                                  enumerator_id))
+                                  enumerator_id),
+           interview_cell = ifelse(issue %in% c("silhouette flag"), 
+                                   str_replace(string = str_extract(string = description, pattern = "interview_cell:\\w+"), pattern = "interview_cell:", ""),
+                                   interview_cell))
 
 df_prep_readme_host <- tibble::tribble(
     ~change_type_validation,                       ~description,
