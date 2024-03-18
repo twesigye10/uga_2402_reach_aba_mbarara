@@ -258,16 +258,16 @@ omit_cols_sil <- c("start", "end", "today", "duration", "duration_minutes",
                    "_geopoint_precision", "_id" ,"_submission_time","_validation_status","_notes",
                    "_status","_submitted_by","_tags","_index", "__version__" )
 
-data_similartiy_sil <- df_tool_data_host %>% 
+data_similartiy_sil_host <- df_tool_data_host %>% 
     select(- any_of(omit_cols_sil), - matches("_note$|^note_"))
 
-df_sil_data <- calculateEnumeratorSimilarity(data = data_similartiy_sil,
+df_sil_data_host <- calculateEnumeratorSimilarity(data = data_similartiy_sil_host,
                                              input_df_survey = df_survey_host, 
                                              col_enum = "enumerator_id",
                                              col_admin = "interview_cell") %>% 
     mutate(si2= abs(si))
 
-df_sil_processed <- df_sil_data[order(df_sil_data$`si2`, decreasing = TRUE),!colnames(df_sil_data)%in%"si2"] %>%  
+df_sil_processed_host <- df_sil_data_host[order(df_sil_data_host$`si2`, decreasing = TRUE),!colnames(df_sil_data_host)%in%"si2"] %>%  
     # filter(si > 0.6) %>% 
     mutate(i.check.uuid = "all",
            i.check.question = NA_character_,
@@ -276,7 +276,7 @@ df_sil_processed <- df_sil_data[order(df_sil_data$`si2`, decreasing = TRUE),!col
     batch_select_rename()
 
 # add other checks to the list
-list_log_host$enum_similarity <- df_sil_processed
+list_log_host$enum_similarity <- df_sil_processed_host
 
 
 
