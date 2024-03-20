@@ -1,5 +1,5 @@
 ---
-title: "field_data_collection_tracker"
+title: "ABA_Mbarara_field_data_collection_tracker"
 author: "IMPACT"
 output:
   html_document:
@@ -68,9 +68,9 @@ df_host_samples_required <- df_host_samples %>%
 
 df_tool_data_ref <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_refugee_data.xlsx") %>%
     rename_with(~str_replace(string = .x, pattern = "meta_", replacement = "")) %>% 
-    mutate(interview_cell = case_when(interview_cell %in% c("kasenyi") ~ "kisenyi",
-                                      interview_cell %in% c("kabetereine") ~ "kabateraine",
-                                                                    TRUE ~ interview_cell)) %>% 
+    # mutate(interview_cell = case_when(interview_cell %in% c("kasenyi") ~ "kisenyi",
+                                      # interview_cell %in% c("kabetereine") ~ "kabateraine",
+                                      #                               TRUE ~ interview_cell)) %>% 
     rename(village_name = interview_cell) %>% 
     mutate(uuid = `_uuid`,
            start_date = as_date(start),
@@ -80,11 +80,16 @@ df_tool_data_ref <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_refugee_da
            latitude = as.numeric(`_geopoint_latitude`),
            longitude = as.numeric(`_geopoint_longitude`))
 
+# add_roster
+
+# df_loop_r_roster_ref <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_refugee_data.xlsx", sheet = "hh_roster")
+# df_tool_data_ref <- df_tool_data_ref %>% 
+#     left_join(df_loop_r_roster_ref, by = c("_uuid" = "_submission__uuid"))
+
+
 df_tool_data_host <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_host_data.xlsx") %>%
     rename_with(~str_replace(string = .x, pattern = "meta_", replacement = "")) %>% 
-    mutate(interview_cell = case_when(interview_cell %in% c("kasenyi") ~ "kisenyi",
-                                      interview_cell %in% c("kabetereine") ~ "kabateraine",
-                                                                    TRUE ~ interview_cell)) %>% 
+    mutate(interview_cell = case_when(today == as_date("2024-03-15") & interview_cell %in% c("nyamityobora_fr") ~                    "survey_camp",      TRUE ~ interview_cell)) %>%
     rename(village_name = interview_cell) %>% 
     mutate(uuid = `_uuid`,
            start_date = as_date(start),
@@ -93,6 +98,11 @@ df_tool_data_host <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_host_data
            village_name = as.character(village_name),
            latitude = as.numeric(`_geopoint_latitude`),
            longitude = as.numeric(`_geopoint_longitude`))
+
+# add roster
+# df_loop_r_roster_host <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_host_data.xlsx", sheet = "hh_roster")
+# df_tool_data_host <- df_tool_data_host %>% 
+#     left_join(df_loop_r_roster_host, by = c("_uuid" = "_submission__uuid"))
 
 
 # days that contain data for refugees
@@ -110,6 +120,7 @@ df_data_support_cl_log_host <- df_tool_data_host %>%
 
 # cleaning log handling ref
 df_cl_log_ref <- read_csv(file = "../inputs/combined_checks_aba_mbarara_refugee.csv") %>% 
+    filter(!question %in% c("age", "fcs_condiments", "gender")) %>% 
     rename(village_name = interview_cell) %>% 
     filter(!str_detect(string = point_number, pattern = fixed('test', ignore_case = TRUE))) %>% 
     mutate(change_type = ifelse(is.na(change_type), "apply_suggested_change", change_type)) %>% 
@@ -127,6 +138,7 @@ cl_log_change_response_ref <- df_cl_log_ref %>%
 
 # cleaning log handling host
 df_cl_log_host <- read_csv(file = "../inputs/combined_checks_aba_mbarara_host.csv") %>% 
+    filter(!question %in% c("age", "fcs_condiments", "gender")) %>% 
     rename(village_name = interview_cell) %>% 
     filter(!str_detect(string = point_number, pattern = fixed('test', ignore_case = TRUE))) %>% 
     mutate(change_type = ifelse(is.na(change_type), "apply_suggested_change", change_type)) %>% 
@@ -311,7 +323,7 @@ df_updated_tool_data_host %>%
   group_by(village_name) %>% 
   summarise(surveys_completed = n()) %>% 
   arrange(village_name) %>% 
-  right_join(df_refugee_samp_per_village_name, by = "village_name") %>% 
+  right_join(df_host_samp_per_village_name, by = "village_name") %>% 
   left_join(df_cl_surveys_for_deletion, by = "village_name") %>% 
   mutate(surveys_completed = ifelse(is.na(surveys_completed), 0, surveys_completed),
          surveys_for_deletion = ifelse(is.na(surveys_for_deletion), 0, surveys_for_deletion),
