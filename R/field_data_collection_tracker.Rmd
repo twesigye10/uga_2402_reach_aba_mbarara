@@ -68,9 +68,9 @@ df_host_samples_required <- df_host_samples %>%
 
 df_tool_data_ref <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_refugee_data.xlsx") %>%
     rename_with(~str_replace(string = .x, pattern = "meta_", replacement = "")) %>% 
-    # mutate(interview_cell = case_when(interview_cell %in% c("kasenyi") ~ "kisenyi",
-                                      # interview_cell %in% c("kabetereine") ~ "kabateraine",
-                                      #                               TRUE ~ interview_cell)) %>% 
+    mutate(interview_cell = case_when(point_number %in% c("kak_cen_cr_21", "kak_cen_cr_22") ~   "kakoba_central", 
+                                     point_number %in% c("sur_cam_cr_51", "sur_cam_cr_52", "sur_cam_cr_57") ~   "survey_camp",  
+                                     point_number %in% c("nya_cen_cr_19") ~   "nyamityobora_central",                                                                            TRUE ~ interview_cell)) %>%
     rename(village_name = interview_cell) %>% 
     mutate(uuid = `_uuid`,
            start_date = as_date(start),
@@ -89,8 +89,12 @@ df_tool_data_ref <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_refugee_da
 
 df_tool_data_host <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_host_data.xlsx") %>%
     rename_with(~str_replace(string = .x, pattern = "meta_", replacement = "")) %>% 
-    mutate(interview_cell = case_when(today == as_date("2024-03-15") & interview_cell %in% c("nyamityobora_fr") ~                    "survey_camp",      TRUE ~ interview_cell)) %>%
-    rename(village_name = interview_cell) %>% 
+    mutate(interview_cell = case_when(point_number %in% c("sur_cam_ch_12", "sur_cam_ch_1", "sur_cam_ch_13", "sur_cam_ch_10",
+                                              "sur_cam_ch_6", "sur_cam_ch_14", "sur_cam_ch_15", "sur_cam_ch_16", "sur_cam_ch_17",                                                       "sur_cam_ch_2", "sur_cam_ch_4", "sur_cam_ch_3", "sur_cam_ch_7", "sur_cam_ch_8",
+                                              "sur_cam_ch_9", "sur_cam_ch_11", "sur_cam_ch_5") ~   "survey_camp", 
+                                     point_number %in% c("all_ch_1", "all_ch_3", "all_ch_5") ~   "alliance",  
+                                     point_number %in% c("kin_may_ch_4") ~   "kinyarwanda_mayanja",                                                                            TRUE ~ interview_cell)) %>%
+    rename(village_name = interview_cell) %>%
     mutate(uuid = `_uuid`,
            start_date = as_date(start),
            start = as_datetime(start),
