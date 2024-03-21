@@ -127,8 +127,8 @@ df_respondent_data_check <- df_repeat_hh_roster_data %>%
            i.check.question = "respondent_age",
            i.check.old_value = as.character(respondent_age),
            i.check.new_value = "NA",
-           i.check.issue = glue("respondent_data : {respondent_age}, {respondent_gender}, details not given in the hh_roster"),
-           i.check.description = "",
+           i.check.issue = "respondent_age_not_in_hh_roster",
+           i.check.description = glue("respondent_data : {respondent_age}, {respondent_gender}, details not given in the hh_roster"),
            i.check.other_text = "",
            i.check.comment = "",
            i.check.reviewed = "",
@@ -138,7 +138,513 @@ df_respondent_data_check <- df_repeat_hh_roster_data %>%
     batch_select_rename()
 list_log_refugee$respondent_data_inconsistencies <- df_respondent_data_check
 
-   
+# If they report one of their main source of income is Casual/seasonal labour/farming 
+# but nobody in the HH is reported to have their employment status Self-employed OR 
+# Income from own business these do not match.
+df_main_income_source_crop_prodn <- df_repeat_hh_roster_data %>% 
+    group_by(`_uuid`) %>%
+    mutate(int.income_sources = paste(hh_main_income_sources, collapse = " , ")) %>% 
+    filter(!is.na(occupation_status)) %>% 
+    filter(!occupation_status %in% c("self_employed", "business_owner") & str_detect(string = int.income_sources, 
+                                                                                     pattern = "crop_production|casual_or_seasonal_labour|livestock_farming")) %>% 
+    filter(row_number() == 1) %>% 
+    ungroup() %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "occupation_status",
+           i.check.old_value = as.character(occupation_status),
+           i.check.new_value = "NA",
+           i.check.issue = "main_income_source_crop_prodn_or_casual_labor",
+           i.check.description = glue("occupation_status : {occupation_status}, but  hh_main_income_sources : {int.income_sources}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "grp_hh_roster",
+           i.check.index = `_index.y`) %>% 
+    batch_select_rename()
+list_log_refugee$income_inconsistencies <- df_main_income_source_crop_prodn
+
+# If they report one of their main source if income is Employment but nobody in the HH is reported to have their 
+# employment status Self-employed (including casual labour) OR  Paid employee OR Student who also works these do not match.
+df_main_income_source_employment <- df_repeat_hh_roster_data %>% 
+    group_by(`_uuid`) %>%
+    mutate(int.income_sources = paste(hh_main_income_sources, collapse = " , ")) %>% 
+    filter(!is.na(occupation_status)) %>% 
+    filter(!occupation_status %in% c("self_employed", "paid_employee", "unpaid_family_worker", "student_who_also_works")
+           & str_detect(string = int.income_sources, pattern = "employment")) %>% 
+    filter(row_number() == 1) %>% 
+    ungroup() %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "occupation_status",
+           i.check.old_value = as.character(occupation_status),
+           i.check.new_value = "NA",
+           i.check.issue = "main_income_source_employment",
+           i.check.description = glue("occupation_status : {occupation_status}, but  hh_main_income_sources: {int.income_sources}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "grp_hh_roster",
+           i.check.index = `_index.y`) %>% 
+    batch_select_rename()
+list_log_refugee$income_source_employment <- df_main_income_source_employment
+
+# If all HH members are unemployed but they state they don’t face any challenges finding employment.
+df_livelihoods_barriers <- df_repeat_hh_roster_data %>% 
+    group_by(`_uuid`) %>%
+    mutate(int.livelihoods_barriers = paste(livelihoods_barriers_faced, collapse = " , ")) %>% 
+    filter(!is.na(occupation_status)) %>% 
+    filter(occupation_status %in% c("unpaid_family_worker ", "unemployed_has_worked_previously", "unemployed_never_worked_before")
+           & str_detect(string = int.livelihoods_barriers, pattern = "no_particular_challenge_or_issue")) %>% 
+    filter(row_number() == 1) %>% 
+    ungroup() %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "occupation_status",
+           i.check.old_value = as.character(occupation_status),
+           i.check.new_value = "NA",
+           i.check.issue = "all_hh_members_unemployed",
+           i.check.description = glue("occupation_status : {occupation_status}, but  hh_livelihood_barriers : {int.livelihoods_barriers}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "grp_hh_roster",
+           i.check.index = `_index.y`) %>% 
+    batch_select_rename()
+list_log_refugee$livelihoods_barriers <- df_livelihoods_barriers
+
+# If the HH has no children aged 0-23 months but they state it's their HH's priority need to have food for children aged 0-23 months.
+df_no_child_under_24_months <- df_tool_data_refugee %>% 
+    filter(!is.na(number_child_aged_0_23)) %>% 
+    filter(number_child_aged_0_23 == 0 & str_detect(string = unmet_needs, 
+                                                    pattern = "special_food_needs_of_your_children")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "unmet_needs_special_food_for_children",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  number_child_aged_0_23 : {number_child_aged_0_23}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$no_child_under_24_months <- df_no_child_under_24_months
+
+#If the HH has no pregnant/lactating women but they state it's their HH's priority need to have food 
+# specifically for pregnant/lactating women.
+df_no_lactating_mother <- df_tool_data_refugee %>% 
+    filter(!is.na(number_mother_lactating)) %>% 
+    filter(number_mother_lactating == 0 & str_detect(string = unmet_needs, 
+                                                     pattern = "special_food_needs_of_pregnant_and_lactating_women")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "unmet_needs_special_food_for_pregnant/lcatating_mother",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  number_mother_lactating : {number_mother_lactating}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$no_lactating_mother <- df_no_lactating_mother
+
+#If they said they have no issues related to water access but then they report it as a HH priority need. 
+df_access_water_problems <- df_tool_data_refugee %>% 
+    filter(!is.na(access_water_problems)) %>% 
+    filter(str_detect(string = unmet_needs, pattern = "water_needs") & str_detect(string = access_water_problems, 
+                                                                                  pattern = "no_problem_related_to_access_to_water")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "no_problem_related_to_access_to_water",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  access_water_problems : {access_water_problems}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$access_water_problems <- df_access_water_problems
+
+#If they said they have no issues related to sanitation access but then they report it as a HH priority need.
+df_access_wash_latrine_problems <- df_tool_data_refugee %>% 
+    filter(!is.na(wash_latrine_problems_faced)) %>% 
+    filter(str_detect(string = unmet_needs, pattern = "sanitation_needs") & str_detect(string = wash_latrine_problems_faced, 
+                                                                                       pattern = "no_problem")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "access_wash_latrine_problems",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  wash_latrine_problems_faced : {wash_latrine_problems_faced}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$access_wash_latrine_problems <- df_access_wash_latrine_problems
+
+#If they said they have no unmet healthcare needs in the past 1 year but then they report it as a HH priority need.
+df_access_health_needs <- df_tool_data_refugee %>% 
+    filter(!is.na(unmet_health_need)) %>% 
+    filter(str_detect(string = unmet_needs, pattern = "healthcare_needs") & str_detect(string = unmet_health_need,
+                                                                                       pattern = "no_unmet_needs")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "unmet_health_needs",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  unmet_health_need: {unmet_health_need}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$access_health_needs <- df_access_health_needs
+
+# If the HH has no children aged 0-23 months but they state it's their HH's priority need to have healthcare for children aged 0-23 months.
+df_no_child_under_24_months_healthcare <- df_tool_data_refugee %>% 
+    filter(!is.na(number_child_aged_0_23)) %>% 
+    filter(number_child_aged_0_23 == 0 & str_detect(string = unmet_needs, 
+                                                    pattern = "special_healthcare_needs_of_your_children")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "unmet_needs_special_healthcare_for_children",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  number_child_aged_0_23 : {number_child_aged_0_23}"),
+           i.check.other_text = "",
+           i.check.comment = "", 
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$no_child_under_24_months_healthcare <- df_no_child_under_24_months_healthcare
+
+# If the HH has no pregnant/lactating women but they state it's their HH's priority need to have healthcare specifically for pregnant/lactating women.
+df_no_lactating_mother_healthcare <- df_tool_data_refugee %>% 
+    filter(!is.na(number_mother_lactating)) %>% 
+    filter(number_mother_lactating == 0 & str_detect(string = unmet_needs, 
+                                                     pattern = "special_healthcare_needs_of_pregnant_and_lactating_women")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "unmet_needs_special_healthcare_for_pregnat/lactating_mother",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  number_mother_lactating : {number_mother_lactating}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$no_lactating_mother_healthcare <- df_no_lactating_mother_healthcare
+
+# If no HH member is a child but they report education for children as a HH priority need.
+df_no_school_aged_child <- df_tool_data_refugee %>% 
+    filter(!is.na(number_school_aged_child)) %>% 
+    filter(number_school_aged_child == 0 & str_detect(string = unmet_needs, 
+                                                      pattern = "education_needs_for_children")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "unmet_needs_education_for_children",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  number_school_aged_child : {number_school_aged_child}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$no_school_aged_child <- df_no_school_aged_child
+
+# If they said they dont have valid documents to stay in Uganda but later they say all HH members have legal documents.
+df_document_to_stay_in_uganda <- df_tool_data_refugee %>% 
+    filter(!is.na(document_to_stay_in_uganda)) %>% 
+    filter(document_to_stay_in_uganda == "no_legalvalid_document" & 
+               hh_members_all_have_legal_docs == "yes_all_household_members") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "unmet_needs",
+           i.check.old_value = as.character(unmet_needs),
+           i.check.new_value = "NA",
+           i.check.issue = "no_document_to_stay_in_uganda",
+           i.check.description = glue("unmet_needs : {unmet_needs}, but  document_to_stay_in_uganda : {document_to_stay_in_uganda}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$document_to_stay_in_uganda <- df_document_to_stay_in_uganda
+
+# If they werent in a settlement before Mbarara but they report one of their main food sources is food assistance is incorrect.
+df_main_hh_source_of_food <- df_tool_data_refugee %>% 
+    filter(place_lived_before_mbarara == "in_my_home_country" & 
+               main_hh_source_of_food == "food_assistance_from_ngos_wfp_unhcr") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "place_lived_before_mbarara",
+           i.check.old_value = as.character(place_lived_before_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "main_hh_source_of_food_is_assistance",
+           i.check.description = glue("place_lived_before_mbarara : {place_lived_before_mbarara}, but  main_hh_source_of_food : {main_hh_source_of_food}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$main_hh_source_of_food <- df_main_hh_source_of_food
+
+# If they werent in a settlement before Mbarara but they report one of their main food sources is food assistance is incorrect.
+df_second_hh_source_of_food <- df_tool_data_refugee %>% 
+    filter(place_lived_before_mbarara == "in_my_home_country" & 
+               second_hh_source_of_food == "food_assistance_from_ngos_wfp_unhcr") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "place_lived_before_mbarara",
+           i.check.old_value = as.character(place_lived_before_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "second_hh_source_of_food_is_assistance",
+           i.check.description = glue("place_lived_before_mbarara : {place_lived_before_mbarara}, but  second_hh_source_of_food : {second_hh_source_of_food}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$second_hh_source_of_food <- df_second_hh_source_of_food
+
+# If they werent in a settlement before Mbarara but they report one of their main food sources is food assistance is incorrect.
+df_third_hh_source_of_food <- df_tool_data_refugee %>% 
+    filter(place_lived_before_mbarara == "in_my_home_country" & 
+               third_hh_source_of_food == "food_assistance_from_ngos_wfp_unhcr") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "place_lived_before_mbarara",
+           i.check.old_value = as.character(place_lived_before_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "third_hh_source_of_food_is_assistance",
+           i.check.description = glue("place_lived_before_mbarara : {place_lived_before_mbarara}, but  third_hh_source_of_food : {third_hh_source_of_food}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$third_hh_source_of_food <- df_third_hh_source_of_food
+
+# If their main income source is money from UN or NGOs but they report no aid was received is an issues.
+df_hh_main_income_sources <- df_tool_data_refugee %>% 
+    filter(hh_received_aid_past == "no" & str_detect(string = hh_main_income_sources, 
+                                                     pattern = "un_agencies_or_ngos")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "hh_received_aid_past",
+           i.check.old_value = as.character(hh_received_aid_past),
+           i.check.new_value = "NA",
+           i.check.issue = "hh_main_income_sources_is_aid",
+           i.check.description = glue("hh_received_aid_past : {hh_received_aid_past}, but  hh_main_income_sources : {hh_main_income_sources}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$hh_main_income_sources <- df_hh_main_income_sources
+
+# If they werent in a settlement before Mbarara but they report they received aid in a settlement flag it.
+df_place_aid_was_received_nakivale <- df_tool_data_refugee %>% 
+    filter(place_lived_before_mbarara == "in_my_home_country" & 
+               place_where_aid_was_received == "nakivale_settlement") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "place_lived_before_mbarara",
+           i.check.old_value = as.character(place_lived_before_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "place_where_aid_was_received_nakivale",
+           i.check.description = glue("place_lived_before_mbarara : {place_lived_before_mbarara}, but  place_where_aid_was_received : {place_where_aid_was_received}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$place_aid_was_received_nakivale <- df_place_aid_was_received_nakivale
+
+# If they werent in a settlement before Mbarara but they report they received aid in a settlement flag it.
+df_place_aid_was_received_oruchinga <- df_tool_data_refugee %>% 
+    filter(place_lived_before_mbarara == "in_my_home_country" & 
+               place_where_aid_was_received == "oruchinga_settlement") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "place_lived_before_mbarara",
+           i.check.old_value = as.character(place_lived_before_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "place_where_aid_was_received_oruchinga",
+           i.check.description = glue("place_lived_before_mbarara : {place_lived_before_mbarara}, but  place_where_aid_was_received : {place_where_aid_was_received}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$place_aid_was_received_oruchinga <- df_place_aid_was_received_oruchinga
+
+# If they werent in a settlement before Mbarara but they report they received aid in a settlement flag it.
+df_place_aid_was_received_rwamwanja <- df_tool_data_refugee %>% 
+    filter(place_lived_before_mbarara == "in_my_home_country" & 
+               place_where_aid_was_received == "rwamwanja_settlement") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "place_lived_before_mbarara",
+           i.check.old_value = as.character(place_lived_before_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "place_where_aid_was_received_rwamwanja",
+           i.check.description = glue("place_lived_before_mbarara : {place_lived_before_mbarara}, but  place_where_aid_was_received : {place_where_aid_was_received}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$place_aid_was_received_oruchinga <- df_place_aid_was_received_rwamwanja
+
+# If they werent in a settlement before Mbarara but they report they received aid in a settlement flag it.
+df_place_aid_was_received_kyaka <- df_tool_data_refugee %>% 
+    filter(place_lived_before_mbarara == "in_my_home_country" & 
+               place_where_aid_was_received == "kyaka_ii_settlement") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "place_lived_before_mbarara",
+           i.check.old_value = as.character(place_lived_before_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "place_where_aid_was_received_kyaka",
+           i.check.description = glue("place_lived_before_mbarara : {place_lived_before_mbarara}, but  place_where_aid_was_received : {place_where_aid_was_received}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$place_aid_was_received_kyaka <- df_place_aid_was_received_kyaka
+
+# If they werent in a settlement before Mbarara but they report they received aid in a settlement flag it.
+df_place_aid_was_received_other_settlement <- df_tool_data_refugee %>% 
+    filter(place_lived_before_mbarara == "in_my_home_country" & 
+               place_where_aid_was_received == "other_settlement") %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "place_lived_before_mbarara",
+           i.check.old_value = as.character(place_lived_before_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "place_where_aid_was_received_other_settlement",
+           i.check.description = glue("place_lived_before_mbarara : {place_lived_before_mbarara}, but  place_where_aid_was_received : {place_where_aid_was_received}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$place_aid_was_received_other_settlement <- df_place_aid_was_received_other_settlement
+
+# If they were displaced less then a year but they lived in Mbarara more then 1 year
+df_hh_date_displaced_less_1year <- df_tool_data_refugee %>% 
+    filter(hh_date_displaced > as_date("2023-03-01") &
+           hh_time_stayed_in_mbarara %in% c("between_1_2_years", "between_3_5_years", "greater_than_5_years")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "hh_time_stayed_in_mbarara",
+           i.check.old_value = as.character(hh_time_stayed_in_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "hh_date_displaced_less_1year",
+           i.check.description = glue("hh_time_stayed_in_mbarara : {hh_time_stayed_in_mbarara}, but  hh_date_displaced : {hh_date_displaced}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$hh_date_displaced_less_1year <- df_hh_date_displaced_less_1year
+
+# If they were displaced less then 2 years but they lived in Mbarara more then 3 years
+df_hh_date_displaced_less_2year <- df_tool_data_refugee %>% 
+    filter(hh_date_displaced > as_date("2022-03-01") &
+               hh_time_stayed_in_mbarara %in% c("between_3_5_years", "greater_than_5_years")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "hh_time_stayed_in_mbarara",
+           i.check.old_value = as.character(hh_time_stayed_in_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "hh_date_displaced_less_2year",
+           i.check.description = glue("hh_time_stayed_in_mbarara : {hh_time_stayed_in_mbarara}, but  hh_date_displaced : {hh_date_displaced}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$hh_date_displaced_less_2year <- df_hh_date_displaced_less_2year
+
+# If they were displaced less then 3 years but they lived in Mbarara more then 4 years
+df_hh_date_displaced_less_3year <- df_tool_data_refugee %>% 
+    filter(hh_date_displaced > as_date("2021-03-01") &
+               hh_time_stayed_in_mbarara %in% c("greater_than_5_years")) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "hh_time_stayed_in_mbarara",
+           i.check.old_value = as.character(hh_time_stayed_in_mbarara),
+           i.check.new_value = "NA",
+           i.check.issue = "hh_date_displaced_less_2year",
+           i.check.description = glue("hh_time_stayed_in_mbarara : {hh_time_stayed_in_mbarara}, but  hh_date_displaced : {hh_date_displaced}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$hh_date_displaced_less_3year <- df_hh_date_displaced_less_3year
 
 
 # other checks ------------------------------------------------------------
