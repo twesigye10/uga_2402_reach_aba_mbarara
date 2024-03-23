@@ -7,7 +7,7 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: false
-knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(dirname(inputFile), '/aba_mbarara_field_data_collection_tracker_', format(Sys.Date(), '%Y_%m_%d'),'.html')) })
+knit: (function(inputFile, encoding) {rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(dirname(inputFile), '/aba_mbarara_field_data_collection_tracker_', format(Sys.Date(), '%Y_%m_%d'),'.html')) })
 ---
 
 ```{r setup, include=FALSE}
@@ -69,8 +69,16 @@ df_host_samples_required <- df_host_samples %>%
 df_tool_data_ref <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_refugee_data.xlsx") %>%
     rename_with(~str_replace(string = .x, pattern = "meta_", replacement = "")) %>% 
     mutate(interview_cell = case_when(point_number %in% c("kak_cen_cr_21", "kak_cen_cr_22") ~   "kakoba_central", 
-                                     point_number %in% c("sur_cam_cr_51", "sur_cam_cr_52", "sur_cam_cr_57") ~   "survey_camp",  
-                                     point_number %in% c("nya_cen_cr_19") ~   "nyamityobora_central",                                                                            TRUE ~ interview_cell)) %>%
+                                     point_number %in% c("sur_cam_cr_51", "sur_cam_cr_52", "sur_cam_cr_57",
+                                                         "sur_cam_cr_16", "sur_cam_cr_3", "sur_cam_cr_1") ~   "survey_camp",  
+                                     point_number %in% c("nya_cen_cr_19") ~   "nyamityobora_central",                                                                            TRUE ~ interview_cell),
+           ward = case_when(interview_cell %in% c("butagatsi", "kacence", "makenke", "kyamugolanyi") ~ "kakiika",
+                           interview_cell %in% c("rwentondo", "kyapotani", "kakoba_quarters", "rugazi", "kabetereine",
+                                                 "nyamityobora_central", "lubiri", "survey_camp", "kakoba_central",
+                                                 "nyakiizi", "kasenyi", "nyamityobora_fr", "kinyarwanda_mayanja",
+                                                 "muyenga", "alliance") ~ "kakoba",
+                           interview_cell %in% c("katete", "nyamitanga") ~ "nyamitanga",
+                                                                          TRUE ~ interview_cell)) %>% 
     rename(village_name = interview_cell) %>% 
     mutate(uuid = `_uuid`,
            start_date = as_date(start),
@@ -90,10 +98,16 @@ df_tool_data_ref <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_refugee_da
 df_tool_data_host <- readxl::read_excel("../inputs/UGA2402_aba_mbarara_host_data.xlsx") %>%
     rename_with(~str_replace(string = .x, pattern = "meta_", replacement = "")) %>% 
     mutate(interview_cell = case_when(point_number %in% c("sur_cam_ch_12", "sur_cam_ch_1", "sur_cam_ch_13", "sur_cam_ch_10",
-                                              "sur_cam_ch_6", "sur_cam_ch_14", "sur_cam_ch_15", "sur_cam_ch_16", "sur_cam_ch_17",                                                       "sur_cam_ch_2", "sur_cam_ch_4", "sur_cam_ch_3", "sur_cam_ch_7", "sur_cam_ch_8",
-                                              "sur_cam_ch_9", "sur_cam_ch_11", "sur_cam_ch_5") ~   "survey_camp", 
-                                     point_number %in% c("all_ch_1", "all_ch_3", "all_ch_5") ~   "alliance",  
-                                     point_number %in% c("kin_may_ch_4") ~   "kinyarwanda_mayanja",                                                                            TRUE ~ interview_cell)) %>%
+                                                          "sur_cam_ch_6", "sur_cam_ch_14", "sur_cam_ch_15","sur_cam_ch_16","ur_cam_ch_17",                                                         "sur_cam_ch_2", "sur_cam_ch_4", "sur_cam_ch_3", "sur_cam_ch_7", "sur_cam_ch_8",
+                                                          "sur_cam_ch_9", "sur_cam_ch_11", "sur_cam_ch_5") ~   "survey_camp",
+                                      point_number %in% c("all_ch_1", "all_ch_3", "all_ch_5") ~   "alliance",  
+                                      point_number %in% c("kin_may_ch_4") ~   "kinyarwanda_mayanja",                                                                            TRUE ~ interview_cell),
+           ward = case_when(interview_cell %in% c("butagatsi", "kacence", "makenke", "kyamugolanyi") ~ "kakiika",
+                            interview_cell %in% c("rwentondo", "kyapotani", "kakoba_quarters", "rugazi", "kabetereine",
+                                                  "nyamityobora_central", "lubiri", "survey_camp", "kakoba_central",
+                                                  "nyakiizi", "kasenyi", "nyamityobora_fr", "kinyarwanda_mayanja",
+                                                  "muyenga", "alliance") ~ "kakoba",
+                            interview_cell %in% c("katete", "nyamitanga") ~ "nyamitanga", TRUE ~ interview_cell)) %>% 
     rename(village_name = interview_cell) %>%
     mutate(uuid = `_uuid`,
            start_date = as_date(start),
@@ -289,22 +303,23 @@ df_cl_surveys_for_deletion <- df_cl_log_ref %>%
   summarise(surveys_for_deletion = n())
 
 
-df_updated_tool_data_ref %>% 
-  group_by(village_name) %>% 
-  summarise(surveys_completed = n()) %>% 
-  arrange(village_name) %>% 
-  right_join(df_refugee_samp_per_village_name, by = "village_name") %>% 
-  left_join(df_cl_surveys_for_deletion, by = "village_name") %>% 
-  mutate(surveys_completed = ifelse(is.na(surveys_completed), 0, surveys_completed),
-         surveys_for_deletion = ifelse(is.na(surveys_for_deletion), 0, surveys_for_deletion),
-         int.surveys_and_deletion = surveys_completed - surveys_for_deletion,
-         remaining_surveys = samples - int.surveys_and_deletion
-          ) %>% 
-  left_join(df_for_colnames, by = "village_name") %>% 
-  select(-c(int.surveys_and_deletion)) %>% 
-  dt_with_modified_options()
-
-```
+  df_xt_ref <- df_updated_tool_data_ref %>% 
+    group_by(ward, village_name) %>% 
+    summarise(surveys_completed = n()) %>% 
+    arrange(ward) %>% 
+    right_join(df_refugee_samp_per_village_name, by = "village_name") %>% 
+    left_join(df_cl_surveys_for_deletion, by = "village_name") %>% 
+    mutate(surveys_completed = ifelse(is.na(surveys_completed), 0, surveys_completed),
+           surveys_for_deletion = ifelse(is.na(surveys_for_deletion), 0, surveys_for_deletion),
+           int.surveys_and_deletion = surveys_completed - surveys_for_deletion,
+           remaining_surveys = samples - int.surveys_and_deletion) %>% 
+    left_join(df_for_colnames, by = "village_name") %>% 
+    select(-c(int.surveys_and_deletion)) 
+  
+  df_xt_ref %>% 
+    DT::datatable()
+  
+  ```
 
 ### Host community: **`r df_updated_tool_data_host %>% nrow()`** surveys
 
@@ -323,10 +338,10 @@ df_cl_surveys_for_deletion <- df_cl_log_host %>%
   summarise(surveys_for_deletion = n())
 
 
-df_updated_tool_data_host %>% 
-  group_by(village_name) %>% 
+df_xt_host <- summary_statistics <- df_updated_tool_data_host %>% 
+  group_by(ward, village_name) %>% 
   summarise(surveys_completed = n()) %>% 
-  arrange(village_name) %>% 
+  arrange(ward) %>% 
   right_join(df_host_samp_per_village_name, by = "village_name") %>% 
   left_join(df_cl_surveys_for_deletion, by = "village_name") %>% 
   mutate(surveys_completed = ifelse(is.na(surveys_completed), 0, surveys_completed),
@@ -335,8 +350,34 @@ df_updated_tool_data_host %>%
          remaining_surveys = samples - int.surveys_and_deletion
           ) %>% 
   left_join(df_for_colnames, by = "village_name") %>% 
-  select(-c(int.surveys_and_deletion)) %>% 
-  dt_with_modified_options()
+  select(-c(int.surveys_and_deletion)) 
+
+df_xt_host %>% 
+    DT::datatable()
+```
+
+### Division level disaggregation (refugee, host)
+```{r, echo = FALSE}
+
+df_dv_statistics_ref <- df_xt_ref %>% 
+    group_by(ward) %>% 
+    summarise(surveys_completed = sum(surveys_completed, na.rm = TRUE),
+              samples = sum(samples, na.rm = TRUE),
+              surveys_for_deletion = sum(surveys_for_deletion, na.rm = TRUE),
+              remaining_surveys = samples - (surveys_completed - surveys_for_deletion)) 
+
+    df_dv_statistics_ref %>% 
+    DT::datatable()
+   
+    df_dv_statistics_host <- df_xt_host %>% 
+    group_by(ward) %>% 
+    summarise(surveys_completed = sum(surveys_completed, na.rm = TRUE),
+              samples = sum(samples, na.rm = TRUE),
+              surveys_for_deletion = sum(surveys_for_deletion, na.rm = TRUE),
+              remaining_surveys = samples - (surveys_completed - surveys_for_deletion))
+
+    df_dv_statistics_host %>% 
+    DT::datatable()         
 ```
 
 ### Gender disaggregation by respondent status (refugee, host)
@@ -352,7 +393,7 @@ df_gender_disaggregation_refugee <- df_tool_data_ref %>%
            percentage_female = female/sum(female, male)*100) %>% 
     mutate(across(where(is.numeric), round, 0)) %>% 
     rename_with(~str_replace(string = .x, pattern = "percentage_female", replacement = "female(%)")) %>% 
-    rename_with(~str_replace( string = .x, pattern = "percentage_male", replacement = "male(%)")) 
+    rename_with(~str_replace(string = .x, pattern = "percentage_male", replacement = "male(%)")) 
 
 df_gender_disaggregation_refugee %>% 
     DT::datatable()
