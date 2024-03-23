@@ -127,7 +127,7 @@ df_respondent_data_check <- df_repeat_hh_roster_data %>%
            i.check.question = "respondent_age",
            i.check.old_value = as.character(respondent_age),
            i.check.new_value = "NA",
-           i.check.issue = "respondent_age_not_in_hh_roster",
+           i.check.issue = "respondent_data_not_in_hh_roster",
            i.check.description = glue("respondent_data : {respondent_age}, {respondent_gender}, details not given in the hh_roster"),
            i.check.other_text = "",
            i.check.comment = "",
