@@ -125,8 +125,8 @@ df_respondent_data_check <- df_repeat_hh_roster_data %>%
            i.check.question = "respondent_age",
            i.check.old_value = as.character(respondent_age),
            i.check.new_value = "NA",
-           i.check.issue = glue("respondent_data : {respondent_age}, {respondent_gender}, details not given in the hh_roster"),
-           i.check.description = "",
+           i.check.issue = "respondent_data_not_in_hh_roster",
+           i.check.description = glue("respondent_data : {respondent_age}, {respondent_gender}, details not given in the hh_roster"),
            i.check.other_text = "",
            i.check.comment = "",
            i.check.reviewed = "",
@@ -136,7 +136,83 @@ df_respondent_data_check <- df_repeat_hh_roster_data %>%
     batch_select_rename()
 list_log_host$respondent_data_inconsistencies <- df_respondent_data_check
 
+# If they report one of their main source of income is Casual/seasonal labour/farming 
+# but nobody in the HH is reported to have their employment status Self-employed OR 
+# Income from own business these do not match.
+df_main_income_source_crop_prodn <- df_repeat_hh_roster_data %>% 
+    group_by(`_uuid`) %>%
+    mutate(int.income_sources = paste(hh_main_income_sources, collapse = " , ")) %>% 
+    filter(!is.na(occupation_status)) %>% 
+    filter(!occupation_status %in% c("self_employed", "business_owner") & str_detect(string = int.income_sources, 
+                                                                                     pattern = "crop_production|casual_or_seasonal_labour|livestock_farming")) %>% 
+    filter(row_number() == 1) %>% 
+    ungroup() %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "occupation_status",
+           i.check.old_value = as.character(occupation_status),
+           i.check.new_value = "NA",
+           i.check.issue = "main_income_source_crop_prodn_or_casual_labor",
+           i.check.description = glue("occupation_status : {occupation_status}, but  hh_main_income_sources : {int.income_sources}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "grp_hh_roster",
+           i.check.index = `_index.y`) %>% 
+    batch_select_rename()
+list_log_refugee$income_inconsistencies <- df_main_income_source_crop_prodn
 
+# If they report one of their main source if income is Employment but nobody in the HH is reported to have their 
+# employment status Self-employed (including casual labour) OR  Paid employee OR Student who also works these do not match.
+df_main_income_source_employment <- df_repeat_hh_roster_data %>% 
+    group_by(`_uuid`) %>%
+    mutate(int.income_sources = paste(hh_main_income_sources, collapse = " , ")) %>% 
+    filter(!is.na(occupation_status)) %>% 
+    filter(!occupation_status %in% c("self_employed", "paid_employee", "unpaid_family_worker", "student_who_also_works")
+           & str_detect(string = int.income_sources, pattern = "employment")) %>% 
+    filter(row_number() == 1) %>% 
+    ungroup() %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "occupation_status",
+           i.check.old_value = as.character(occupation_status),
+           i.check.new_value = "NA",
+           i.check.issue = "main_income_source_employment",
+           i.check.description = glue("occupation_status : {occupation_status}, but  hh_main_income_sources: {int.income_sources}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "grp_hh_roster",
+           i.check.index = `_index.y`) %>% 
+    batch_select_rename()
+list_log_refugee$income_source_employment <- df_main_income_source_employment
+
+# If all HH members are unemployed but they state they don’t face any challenges finding employment.
+df_livelihoods_barriers <- df_repeat_hh_roster_data %>% 
+    group_by(`_uuid`) %>%
+    mutate(int.livelihoods_barriers = paste(livelihoods_barriers_faced, collapse = " , ")) %>% 
+    filter(!is.na(occupation_status)) %>% 
+    filter(occupation_status %in% c("unpaid_family_worker ", "unemployed_has_worked_previously", "unemployed_never_worked_before")
+           & str_detect(string = int.livelihoods_barriers, pattern = "no_particular_challenge_or_issue")) %>% 
+    filter(row_number() == 1) %>% 
+    ungroup() %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "occupation_status",
+           i.check.old_value = as.character(occupation_status),
+           i.check.new_value = "NA",
+           i.check.issue = "all_hh_members_unemployed",
+           i.check.description = glue("occupation_status : {occupation_status}, but  hh_livelihood_barriers : {int.livelihoods_barriers}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "grp_hh_roster",
+           i.check.index = `_index.y`) %>% 
+    batch_select_rename()
+list_log_refugee$livelihoods_barriers <- df_livelihoods_barriers
 
 
 # other checks ------------------------------------------------------------
