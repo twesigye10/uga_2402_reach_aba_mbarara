@@ -356,7 +356,7 @@ df_xt_host %>%
     DT::datatable()
 ```
 
-### Division level disaggregation (refugee, host)
+### Ward level disaggregation (refugee, host)
 ```{r, echo = FALSE}
 
 df_dv_statistics_ref <- df_xt_ref %>% 
