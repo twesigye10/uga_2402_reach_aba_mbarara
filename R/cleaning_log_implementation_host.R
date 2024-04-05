@@ -2,6 +2,7 @@ library(tidyverse)
 library(glue)
 library(cleaningtools)
 library(httr)
+library(supporteR)
 
 loc_data_host <- "inputs/UGA2402_aba_mbarara_host_data.xlsx"
 
@@ -34,12 +35,13 @@ pii_from_data_host$potential_PII
 
 # then determine wich columns to remove from both the raw and clean data
 cols_to_remove_host <- c("audit", "audit_URL", "pt_num_msg", "pt_num_validation_message",
-                            "pt_sample_lat", "pt_sample_lon", "dist_btn_sample_collected", 
-                            "threshold_msg_2_positive", "threshold_msg_2_negative",
-                            "telephone", "contact", "name", "gps", 
-                            "latitude", "longitude", "contact", "geopoint",
-                            "instance_name", "_geopoint_latitude", "_geopoint_longitude",
-                            "_geopoint_altitude", "_geopoint_precision")
+                         "pt_sample_lat", "pt_sample_lon", "dist_btn_sample_collected", 
+                         "threshold_msg_2_positive", "threshold_msg_2_negative",
+                         "telephone", "contact", "name", "gps", 
+                         "latitude", "longitude", "contact", "geopoint",
+                         "instance_name", "_geopoint_latitude", "_geopoint_longitude",
+                         "_geopoint_altitude", "_geopoint_precision",
+                         "phone_consent", "fgd_phone_number")
 
 
 
