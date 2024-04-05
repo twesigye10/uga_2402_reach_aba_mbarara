@@ -95,16 +95,16 @@ list_of_datasets_host <- list("raw_data" = df_tool_data_host %>% select(-any_of(
 
 df_main_extra_log <- df_updating_sm_parents_host$extra_log_sm_parents
 
-# 
-# openxlsx::write.xlsx(list_of_datasets_host, 
-#                      paste0("outputs/", butteR::date_file_prefix(), "_UGA2402_aba_mbarara_host_cleaned_data.xlsx"),
-#                      overwrite = TRUE)
-# 
-# # extra log for recreated select multiple ---------------------------------
-# 
-# openxlsx::write.xlsx(df_updating_sm_parents_host$extra_log_sm_parents, 
-#                      paste0("outputs/", butteR::date_file_prefix(), 
-#                               "_extra_sm_parent_changes_checks_aba_mbarara_host.xlsx"))
+
+openxlsx::write.xlsx(list_of_datasets_host,
+                     paste0("outputs/", butteR::date_file_prefix(), "_UGA2402_aba_mbarara_host_cleaned_data.xlsx"),
+                     overwrite = TRUE)
+
+# extra log for recreated select multiple ---------------------------------
+
+openxlsx::write.xlsx(df_updating_sm_parents_host$extra_log_sm_parents,
+                     paste0("outputs/", butteR::date_file_prefix(),
+                              "_extra_sm_parent_changes_checks_aba_mbarara_host.xlsx"))
 
 
 # roster cleaning ---------------------------------------------------------
