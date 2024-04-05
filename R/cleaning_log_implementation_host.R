@@ -54,8 +54,9 @@ df_filled_cl_host_main <- df_filled_cl_host %>%
 # updating the main dataset with new columns
 
 df_data_with_added_cols_host <- cts_add_new_sm_choices_to_data(input_df_tool_data = df_tool_data_host,
-                                                          input_df_filled_cl = df_filled_cl_host_main, 
-                                                          input_df_choices = df_choices_host)
+                                                               input_df_filled_cl = df_filled_cl_host_main, 
+                                                               input_df_survey = df_survey_host,
+                                                               input_df_choices = df_choices_host)
 
 # check the cleaning log
 df_cl_review_host <- cleaningtools::review_cleaning_log(
@@ -71,7 +72,7 @@ df_cl_review_host <- cleaningtools::review_cleaning_log(
 # filter log for cleaning
 df_final_cleaning_log_host <- df_filled_cl_host_main %>% 
     filter(!question %in% c("duration_audit_sum_all_ms", "duration_audit_sum_all_minutes"), !uuid %in% c("all")) %>% 
-filter(!str_detect(string = question, pattern = "\\w+\\/$"))
+    filter(!str_detect(string = question, pattern = "\\w+\\/$"))
 
 # create the clean data from the raw data and cleaning log
 df_cleaning_step_host <- cleaningtools::create_clean_data(
@@ -106,7 +107,7 @@ openxlsx::write.xlsx(list_of_datasets_host,
 
 openxlsx::write.xlsx(df_updating_sm_parents_host$extra_log_sm_parents,
                      paste0("outputs/", butteR::date_file_prefix(),
-                              "_extra_sm_parent_changes_checks_aba_mbarara_host.xlsx"))
+                            "_extra_sm_parent_changes_checks_aba_mbarara_host.xlsx"))
 
 
 # roster cleaning ---------------------------------------------------------
