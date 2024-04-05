@@ -71,7 +71,8 @@ df_cl_review_host <- cleaningtools::review_cleaning_log(
 
 # filter log for cleaning
 df_final_cleaning_log_host <- df_filled_cl_host_main %>% 
-    filter(!question %in% c("duration_audit_sum_all_ms", "duration_audit_sum_all_minutes"), !uuid %in% c("all")) %>% 
+    filter(!question %in% c("duration_audit_sum_all_ms", "duration_audit_sum_all_minutes", "phone_consent"), 
+           !uuid %in% c("all")) %>% 
     filter(!str_detect(string = question, pattern = "\\w+\\/$"))
 
 # create the clean data from the raw data and cleaning log
