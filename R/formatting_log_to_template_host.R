@@ -75,6 +75,12 @@ df_log_del_confirmed_host <- df_cleaning_log_host %>%
 df_cleaning_log_host_updated <- df_cleaning_log_host %>% 
     filter(!uuid %in% df_log_del_confirmed_host$uuid)
 
+df_cleaning_log_host_updated_roster <- df_cleaning_log_host_roster %>% 
+    filter(!uuid %in% df_log_del_confirmed_host$uuid)
+
+df_cleaning_log_host_updated_income <- df_cleaning_log_host_income %>% 
+    filter(!uuid %in% df_log_del_confirmed_host$uuid)
+
 # create variable summary -------------------------------------------------
 # also need to add composite indicators
 # need to determine new choices added and how many entries were affected
@@ -103,6 +109,34 @@ df_formatted_log_host <- df_cleaning_log_host_updated %>%
            new.value = ifelse(changed %in% c("no"), old.value, new.value)) %>%  
     select(uuid, `enumerator ID`, question.name, Issue, `Type of Issue`, 
            feedback, changed, old.value, new.value)
+
+df_formatted_log_host_roster <- df_cleaning_log_host_updated_roster %>%  
+    mutate(int.adjust_log = ifelse(change_type %in% c("no_action"), "no", "yes"),
+           `enumerator ID` = enumerator_id, 
+           question.name = question, 
+           Issue = issue, 
+           `Type of Issue` = change_type, 
+           feedback = comment, 
+           changed = int.adjust_log, 
+           old.value = old_value, 
+           new.value = new_value,
+           new.value = ifelse(changed %in% c("no"), old.value, new.value)) %>%  
+    select(uuid, `enumerator ID`, question.name, Issue, `Type of Issue`, 
+           feedback, changed, old.value, new.value, sheet, index)
+
+df_formatted_log_host_income <- df_cleaning_log_host_updated_income %>%  
+    mutate(int.adjust_log = ifelse(change_type %in% c("no_action"), "no", "yes"),
+           `enumerator ID` = enumerator_id, 
+           question.name = question, 
+           Issue = issue, 
+           `Type of Issue` = change_type, 
+           feedback = comment, 
+           changed = int.adjust_log, 
+           old.value = old_value, 
+           new.value = new_value,
+           new.value = ifelse(changed %in% c("no"), old.value, new.value)) %>%  
+    select(uuid, `enumerator ID`, question.name, Issue, `Type of Issue`, 
+           feedback, changed, old.value, new.value, sheet, index)
 
 # deletion log ------------------------------------------------------------
 
@@ -189,6 +223,18 @@ writeData(wb_log_host, sheet = "Log book", df_formatted_log_host, startRow = 1, 
 addStyle(wb_log_host, sheet = "Log book", hs1, rows = 1, cols = 1:9, gridExpand = FALSE)
 setColWidths(wb = wb_log_host, sheet = "Log book", cols = 1, widths = 36)
 setColWidths(wb = wb_log_host, sheet = "Log book", cols = 2:9, widths = 20)
+
+addWorksheet(wb_log_host, sheetName="Log book - roster")
+writeData(wb_log_host, sheet = "Log book - roster", df_formatted_log_host, startRow = 1, startCol = 1)
+addStyle(wb_log_host, sheet = "Log book - roster", hs1, rows = 1, cols = 1:11, gridExpand = FALSE)
+setColWidths(wb = wb_log_host, sheet = "Log book - roster", cols = 1, widths = 36)
+setColWidths(wb = wb_log_host, sheet = "Log book - roster", cols = 2:11, widths = 20)
+
+addWorksheet(wb_log_host, sheetName="Log book - income")
+writeData(wb_log_host, sheet = "Log book - income", df_formatted_log_host, startRow = 1, startCol = 1)
+addStyle(wb_log_host, sheet = "Log book - income", hs1, rows = 1, cols = 1:11, gridExpand = FALSE)
+setColWidths(wb = wb_log_host, sheet = "Log book - income", cols = 1, widths = 36)
+setColWidths(wb = wb_log_host, sheet = "Log book - income", cols = 2:11, widths = 20)
 
 
 # data_extract ------------------------------------------------------------
