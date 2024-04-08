@@ -98,12 +98,12 @@ df_updating_sm_parents_refugee <- cts_update_sm_parent_cols(input_df_cleaning_st
                                                          input_uuid_col = "_uuid",
                                                          input_point_id_col = "point_number",
                                                          input_collected_date_col = "today",
-                                                         input_location_col = "interview_cell") %>% 
-    filter(!`_uuid` %in% df_remove_survey_cl_refugee$uuid)
+                                                         input_location_col = "interview_cell")
 
 # tool data to support loops ----------------------------------------------
 
 df_tool_support_data_for_loops_refugee <- df_updating_sm_parents_refugee$updated_sm_parents %>% 
+    filter(!`_uuid` %in% df_remove_survey_cl_refugee$uuid) %>% 
     select(`_uuid`, interview_cell, today, enumerator_id, point_number)
 
 # roster cleaning ---------------------------------------------------------
@@ -163,8 +163,7 @@ df_updating_sm_parents_refugee_roster <- cts_update_sm_parent_cols(input_df_clea
                                                                 input_location_col = "interview_cell", 
                                                                 input_dataset_type = "loop", 
                                                                 input_sheet_name = "hh_roster", 
-                                                                input_index_col = "_index") %>% 
-    filter(!`_submission__uuid` %in% df_remove_survey_cl_refugee$uuid)
+                                                                input_index_col = "_index")
 
 # income_received ---------------------------------------------------------
 
@@ -205,8 +204,7 @@ df_cleaning_step_refugee_income <- cleaningtools::create_clean_data(
     remove_survey_value = "remove_survey",
     cleaning_log_question_column = "question",
     cleaning_log_uuid_column = "uuid",
-    cleaning_log_new_value_column = "new_value") %>% 
-    filter(!`_submission__uuid` %in% df_remove_survey_cl_refugee$uuid)
+    cleaning_log_new_value_column = "new_value")
 
 
 # export datasets ---------------------------------------------------------
@@ -214,9 +212,12 @@ df_cleaning_step_refugee_income <- cleaningtools::create_clean_data(
 list_of_datasets_refugee <- list("raw_data" = df_tool_data_refugee %>% select(-any_of(cols_to_remove_refugee)),
                               "raw_roster" = df_loop_r_roster_refugee %>% select(-any_of(cols_to_remove_refugee_roster)),
                               "raw_income_received" = df_loop_r_income_refugee,
-                              "cleaned_data" = df_updating_sm_parents_refugee$updated_sm_parents,
-                              "cleaned_roster" = df_updating_sm_parents_refugee_roster$updated_sm_parents,
-                              "cleaned_income_received" = df_cleaning_step_refugee_income,
+                              "cleaned_data" = df_updating_sm_parents_refugee$updated_sm_parents %>% 
+                                  filter(!`_uuid` %in% df_remove_survey_cl_refugee$uuid),
+                              "cleaned_roster" = df_updating_sm_parents_refugee_roster$updated_sm_parents %>% 
+                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_refugee$uuid),
+                              "cleaned_income_received" = df_cleaning_step_refugee_income %>% 
+                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_refugee$uuid),
                               "extra_log_sm_parents" = df_updating_sm_parents_refugee$extra_log_sm_parents,
                               "extra_log_sm_parents_roster" = df_updating_sm_parents_refugee_roster$extra_log_sm_parents
                               )
