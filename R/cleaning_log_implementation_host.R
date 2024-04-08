@@ -29,6 +29,9 @@ df_choices_host <- readxl::read_excel(loc_tool_host, sheet = "choices")
 df_filled_cl_host <- readxl::read_excel("inputs/combined_checks_aba_mbarara_host.xlsx", sheet = "cleaning_log") %>% 
     filter(!is.na(reviewed), !question %in% c("_index"), !uuid %in% c("all"))
 
+df_remove_survey_cl_host <- df_filled_cl_host %>% 
+    filter(change_type %in% c("remove_survey"))
+
 # check pii ---------------------------------------------------------------
 pii_from_data_host <- cleaningtools::check_pii(dataset = df_tool_data_host, element_name = "checked_dataset", uuid_column = "_uuid")
 pii_from_data_host$potential_PII
@@ -95,7 +98,8 @@ df_updating_sm_parents_host <- cts_update_sm_parent_cols(input_df_cleaning_step_
                                                          input_uuid_col = "_uuid",
                                                          input_point_id_col = "point_number",
                                                          input_collected_date_col = "today",
-                                                         input_location_col = "interview_cell")
+                                                         input_location_col = "interview_cell") %>% 
+    filter(!`_uuid` %in% df_remove_survey_cl_host$uuid)
 
 # tool data to support loops ----------------------------------------------
 
@@ -159,7 +163,8 @@ df_updating_sm_parents_host_roster <- cts_update_sm_parent_cols(input_df_cleanin
                                                                 input_location_col = "interview_cell", 
                                                                 input_dataset_type = "loop", 
                                                                 input_sheet_name = "hh_roster", 
-                                                                input_index_col = "_index")
+                                                                input_index_col = "_index") %>% 
+    filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid)
 
 # income_received ---------------------------------------------------------
 
@@ -200,7 +205,8 @@ df_cleaning_step_host_income <- cleaningtools::create_clean_data(
     remove_survey_value = "remove_survey",
     cleaning_log_question_column = "question",
     cleaning_log_uuid_column = "uuid",
-    cleaning_log_new_value_column = "new_value")
+    cleaning_log_new_value_column = "new_value") %>% 
+    filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid)
 
 
 # export datasets ---------------------------------------------------------
