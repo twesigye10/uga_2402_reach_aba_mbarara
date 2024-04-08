@@ -217,11 +217,21 @@ list_of_datasets_host <- list("raw_data" = df_tool_data_host %>% select(-any_of(
                               "cleaned_roster" = df_updating_sm_parents_host_roster$updated_sm_parents %>% 
                                   filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid),
                               "cleaned_income_received" = df_cleaning_step_host_income %>% 
-                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid),
-                              "extra_log_sm_parents" = df_updating_sm_parents_host$extra_log_sm_parents,
-                              "extra_log_sm_parents_roster" = df_updating_sm_parents_host_roster$extra_log_sm_parents
+                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid)
                               )
 
 openxlsx::write.xlsx(list_of_datasets_host,
                      paste0("outputs/", butteR::date_file_prefix(), "_UGA2402_aba_mbarara_host_cleaned_data.xlsx"),
                      overwrite = TRUE)
+
+# extra log for recreated select multiple ---------------------------------
+
+list_of_extra_logs_host <- list("extra_log_sm_parents" = df_updating_sm_parents_host$extra_log_sm_parents,
+                                "extra_log_sm_parents_roster" = df_updating_sm_parents_host_roster$extra_log_sm_parents
+)
+
+openxlsx::write.xlsx(list_of_extra_logs_host, 
+                     paste0("outputs/", butteR::date_file_prefix(), 
+                            "_extra_sm_parent_changes_checks_aba_mbarara_host.xlsx"),
+                     overwrite = TRUE)
+
