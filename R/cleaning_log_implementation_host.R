@@ -92,8 +92,10 @@ df_cleaning_step_host <- cleaningtools::create_clean_data(
 
 # handle parent question columns
 df_updating_sm_parents_host <- cts_update_sm_parent_cols(input_df_cleaning_step_data = df_cleaning_step_host, 
+                                                         input_uuid_col = "_uuid",
+                                                         input_point_id_col = "point_number",
+                                                         input_collected_date_col = "today",
                                                          input_location_col = "interview_cell")
-
 
 # tool data to support loops ----------------------------------------------
 
@@ -150,7 +152,7 @@ df_cleaning_step_host_roster <- cleaningtools::create_clean_data(
 
 # handle parent question columns
 df_updating_sm_parents_host_roster <- cts_update_sm_parent_cols(input_df_cleaning_step_data = df_cleaning_step_host_roster,
-                                                                input_uuid_col = "_uuid",
+                                                                input_uuid_col = "_submission__uuid",
                                                                 input_enumerator_id_col = "enumerator_id",
                                                                 input_point_id_col = "point_number",
                                                                 input_collected_date_col = "today",
@@ -210,7 +212,7 @@ list_of_datasets_host <- list("raw_data" = df_tool_data_host %>% select(-any_of(
                               "cleaned_roster" = df_updating_sm_parents_host_roster$updated_sm_parents,
                               "cleaned_income_received" = df_cleaning_step_host_income,
                               "extra_log_sm_parents" = df_updating_sm_parents_host$extra_log_sm_parents,
-                              "extra_log_sm_parents_roster" = df_updating_sm_parents_host_roster$extra_log_sm_parents,
+                              "extra_log_sm_parents_roster" = df_updating_sm_parents_host_roster$extra_log_sm_parents
                               )
 
 openxlsx::write.xlsx(list_of_datasets_host,
