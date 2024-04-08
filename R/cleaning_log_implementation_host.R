@@ -147,7 +147,10 @@ df_updating_sm_parents_host_roster <- cts_update_sm_parent_cols(input_df_cleanin
                                                                 input_enumerator_id_col = "enumerator_id",
                                                                 input_point_id_col = "point_number",
                                                                 input_collected_date_col = "today",
-                                                                input_location_col = "interview_cell")
+                                                                input_location_col = "interview_cell", 
+                                                                input_dataset_type = "loop", 
+                                                                input_sheet_name = "hh_roster", 
+                                                                input_index_col = "_index")
 
 
 
@@ -159,11 +162,11 @@ df_updating_sm_parents_host_roster <- cts_update_sm_parent_cols(input_df_cleanin
 # export datasets ---------------------------------------------------------
 
 list_of_datasets_host <- list("raw_data" = df_tool_data_host %>% select(-any_of(cols_to_remove_host)),
-                              "raw_roster" = df_loop_r_roster %>% select(-any_of(cols_to_remove_host_roster)),
+                              # "raw_roster" = df_loop_r_roster %>% select(-any_of(cols_to_remove_host_roster)),
                               "cleaned_data" = df_updating_sm_parents_host$updated_sm_parents,
-                              "cleaned_roster" = df_updating_sm_parents_host_roster$updated_sm_parents,
-                              "extra_log_sm_parents" = df_updating_sm_parents_host$extra_log_sm_parents,
-                              "extra_log_sm_parents_roster" = df_updating_sm_parents_host_roster$extra_log_sm_parents,
+                              # "cleaned_roster" = df_updating_sm_parents_host_roster$updated_sm_parents,
+                              "extra_log_sm_parents" = df_updating_sm_parents_host$extra_log_sm_parents#,
+                              # "extra_log_sm_parents_roster" = df_updating_sm_parents_host_roster$extra_log_sm_parents,
                               )
 
 openxlsx::write.xlsx(list_of_datasets_host,
