@@ -142,16 +142,19 @@ df_final_cleaning_log_refugee_roster <- df_filled_cl_refugee_roster %>%
 
 # create the clean data from the raw data and cleaning log
 df_cleaning_step_refugee_roster <- cleaningtools::create_clean_data(
-    raw_dataset = df_data_with_added_cols_refugee_roster %>% select(-any_of(cols_to_remove_refugee_roster)),
-    raw_data_uuid_column = "_submission__uuid",
-    cleaning_log = df_final_cleaning_log_refugee_roster,
+    raw_dataset = df_data_with_added_cols_refugee_roster %>% 
+        select(-any_of(cols_to_remove_refugee_roster)) %>% 
+        mutate(cleaning_uuid = paste0(`_submission__uuid`, `_index`)),
+    raw_data_uuid_column = "cleaning_uuid",
+    cleaning_log = df_final_cleaning_log_refugee_roster %>% 
+        mutate(log_cleaning_uuid = paste0(uuid, index)),
     cleaning_log_change_type_column = "change_type",
     change_response_value = "change_response",
     NA_response_value = "blank_response",
     no_change_value = "no_action",
     remove_survey_value = "remove_survey",
     cleaning_log_question_column = "question",
-    cleaning_log_uuid_column = "uuid",
+    cleaning_log_uuid_column = "log_cleaning_uuid",
     cleaning_log_new_value_column = "new_value")
 
 # handle parent question columns
@@ -194,16 +197,18 @@ df_final_cleaning_log_refugee_income <- df_filled_cl_refugee_income %>%
 
 # create the clean data from the raw data and cleaning log
 df_cleaning_step_refugee_income <- cleaningtools::create_clean_data(
-    raw_dataset = df_loop_r_income_refugee,
-    raw_data_uuid_column = "_submission__uuid",
-    cleaning_log = df_final_cleaning_log_refugee_income,
+    raw_dataset = df_loop_r_income_refugee %>% 
+        mutate(cleaning_uuid = paste0(`_submission__uuid`, `_index`)),
+    raw_data_uuid_column = "cleaning_uuid",
+    cleaning_log = df_final_cleaning_log_refugee_income %>% 
+        mutate(log_cleaning_uuid = paste0(uuid, index)),
     cleaning_log_change_type_column = "change_type",
     change_response_value = "change_response",
     NA_response_value = "blank_response",
     no_change_value = "no_action",
     remove_survey_value = "remove_survey",
     cleaning_log_question_column = "question",
-    cleaning_log_uuid_column = "uuid",
+    cleaning_log_uuid_column = "log_cleaning_uuid",
     cleaning_log_new_value_column = "new_value")
 
 
@@ -215,13 +220,23 @@ list_of_datasets_refugee <- list("raw_data" = df_tool_data_refugee %>% select(-a
                               "cleaned_data" = df_updating_sm_parents_refugee$updated_sm_parents %>% 
                                   filter(!`_uuid` %in% df_remove_survey_cl_refugee$uuid),
                               "cleaned_roster" = df_updating_sm_parents_refugee_roster$updated_sm_parents %>% 
-                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_refugee$uuid),
+                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_refugee$uuid) %>% 
+                                  select(-cleaning_uuid),
                               "cleaned_income_received" = df_cleaning_step_refugee_income %>% 
-                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_refugee$uuid),
-                              "extra_log_sm_parents" = df_updating_sm_parents_refugee$extra_log_sm_parents,
-                              "extra_log_sm_parents_roster" = df_updating_sm_parents_refugee_roster$extra_log_sm_parents
+                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_refugee$uuid) %>% 
+                                  select(-cleaning_uuid)
                               )
 
 openxlsx::write.xlsx(list_of_datasets_refugee,
                      paste0("outputs/", butteR::date_file_prefix(), "_UGA2402_aba_mbarara_refugee_cleaned_data.xlsx"),
+                     overwrite = TRUE)
+
+# export datasets ---------------------------------------------------------
+
+list_of_extra_logs_refugee <- list("extra_log_sm_parents" = df_updating_sm_parents_refugee$extra_log_sm_parents,
+                              "extra_log_sm_parents_roster" = df_updating_sm_parents_refugee_roster$extra_log_sm_parents
+                              )
+
+openxlsx::write.xlsx(list_of_extra_logs_refugee,
+                     paste0("outputs/", butteR::date_file_prefix(), "_extra_sm_parent_changes_checks_aba_mbarara_refugee.xlsx"),
                      overwrite = TRUE)
