@@ -94,6 +94,12 @@ df_cleaning_step_host <- cleaningtools::create_clean_data(
 df_updating_sm_parents_host <- cts_update_sm_parent_cols(input_df_cleaning_step_data = df_cleaning_step_host, 
                                                          input_location_col = "interview_cell")
 
+
+# tool data to support loops ----------------------------------------------
+
+df_tool_support_data_for_loops_host <- df_updating_sm_parents_host$updated_sm_parents %>% 
+    select(`_uuid`, interview_cell, today, enumerator_id, point_number)
+
 # roster cleaning ---------------------------------------------------------
 
 # then determine wich columns to remove from both the raw and clean data
@@ -104,7 +110,8 @@ df_filled_cl_host_roster <- df_filled_cl_host %>%
 
 # updating the main dataset with new columns
 
-df_data_with_added_cols_host_roster <- cts_add_new_sm_choices_to_data(input_df_tool_data = df_loop_r_roster,
+df_data_with_added_cols_host_roster <- cts_add_new_sm_choices_to_data(input_df_tool_data = df_loop_r_roster %>% 
+                                                                          left_join(df_tool_support_data_for_loops_host, by = c("_submission__uuid" = "_uuid")),
                                                                       input_df_filled_cl = df_filled_cl_host_roster, 
                                                                       input_df_survey = df_survey_host,
                                                                       input_df_choices = df_choices_host)
