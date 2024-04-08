@@ -220,9 +220,11 @@ list_of_datasets_host <- list("raw_data" = df_tool_data_host %>% select(-any_of(
                               "cleaned_data" = df_updating_sm_parents_host$updated_sm_parents %>% 
                                   filter(!`_uuid` %in% df_remove_survey_cl_host$uuid),
                               "cleaned_roster" = df_updating_sm_parents_host_roster$updated_sm_parents %>% 
-                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid),
+                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid) %>% 
+                                  select(-cleaning_uuid),
                               "cleaned_income_received" = df_cleaning_step_host_income %>% 
-                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid)
+                                  filter(!`_submission__uuid` %in% df_remove_survey_cl_host$uuid) %>% 
+                                  select(-cleaning_uuid)
                               )
 
 openxlsx::write.xlsx(list_of_datasets_host,
