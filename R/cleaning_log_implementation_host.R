@@ -142,16 +142,19 @@ df_final_cleaning_log_host_roster <- df_filled_cl_host_roster %>%
 
 # create the clean data from the raw data and cleaning log
 df_cleaning_step_host_roster <- cleaningtools::create_clean_data(
-    raw_dataset = df_data_with_added_cols_host_roster %>% select(-any_of(cols_to_remove_host_roster)),
-    raw_data_uuid_column = "_submission__uuid",
-    cleaning_log = df_final_cleaning_log_host_roster,
+    raw_dataset = df_data_with_added_cols_host_roster %>% 
+        select(-any_of(cols_to_remove_host_roster)) %>% 
+        mutate(cleaning_uuid = paste0(`_submission__uuid`, `_index`)),
+    raw_data_uuid_column = "cleaning_uuid",
+    cleaning_log = df_final_cleaning_log_host_roster %>% 
+        mutate(log_cleaning_uuid = paste0(uuid, index)),
     cleaning_log_change_type_column = "change_type",
     change_response_value = "change_response",
     NA_response_value = "blank_response",
     no_change_value = "no_action",
     remove_survey_value = "remove_survey",
     cleaning_log_question_column = "question",
-    cleaning_log_uuid_column = "uuid",
+    cleaning_log_uuid_column = "log_cleaning_uuid",
     cleaning_log_new_value_column = "new_value")
 
 # handle parent question columns
@@ -194,16 +197,18 @@ df_final_cleaning_log_host_income <- df_filled_cl_host_income %>%
 
 # create the clean data from the raw data and cleaning log
 df_cleaning_step_host_income <- cleaningtools::create_clean_data(
-    raw_dataset = df_loop_r_income,
-    raw_data_uuid_column = "_submission__uuid",
-    cleaning_log = df_final_cleaning_log_host_income,
+    raw_dataset = df_loop_r_income %>% 
+        mutate(cleaning_uuid = paste0(`_submission__uuid`, `_index`)),
+    raw_data_uuid_column = "cleaning_uuid",
+    cleaning_log = df_final_cleaning_log_host_income %>% 
+        mutate(log_cleaning_uuid = paste0(uuid, index)),
     cleaning_log_change_type_column = "change_type",
     change_response_value = "change_response",
     NA_response_value = "blank_response",
     no_change_value = "no_action",
     remove_survey_value = "remove_survey",
     cleaning_log_question_column = "question",
-    cleaning_log_uuid_column = "uuid",
+    cleaning_log_uuid_column = "log_cleaning_uuid",
     cleaning_log_new_value_column = "new_value")
 
 
