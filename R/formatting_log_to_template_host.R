@@ -28,13 +28,13 @@ log_c_types_sm_parents_host <- case_when(str_detect(string = log_data_nms_sm_par
 df_cleaning_log_sm_parents_host <- readxl::read_excel(log_path_sm_parents_host, col_types = log_c_types_sm_parents_host, sheet = "extra_log_sm_parents") %>%  
     filter(reviewed %in% c("1"))
 
-# df_cleaning_log_sm_parents_host_host_roster
+# df_cleaning_log_sm_parents_host_roster
 log_data_nms_sm_parents_roster_host <- names(readxl::read_excel(path = log_path_sm_parents_host, n_max = 2000, sheet = "extra_log_sm_parents_roster"))
-log_c_types_sm_parents_roster_host <- case_when(str_detect(string = log_data_nms_sm_parents_host, pattern = "sheet|new_value|other_text|enumerator_id") ~ "text",
-                                         str_detect(string = log_data_nms_sm_parents_host, pattern = "index|reviewed") ~ "numeric",
-                                         str_detect(string = log_data_nms_sm_parents_host, pattern = "today") ~ "date",
+log_c_types_sm_parents_roster_host <- case_when(str_detect(string = log_data_nms_sm_parents_roster_host, pattern = "sheet|new_value|other_text|enumerator_id") ~ "text",
+                                         str_detect(string = log_data_nms_sm_parents_roster_host, pattern = "index|reviewed") ~ "numeric",
+                                         str_detect(string = log_data_nms_sm_parents_roster_host, pattern = "today") ~ "date",
                                          TRUE ~ "guess")
-df_cleaning_log_sm_parents_roster_host <- readxl::read_excel(log_path_sm_parents_host, col_types = log_c_types_sm_parents_host, sheet = "extra_log_sm_parents_roster") %>%  
+df_cleaning_log_sm_parents_roster_host <- readxl::read_excel(log_path_sm_parents_host, col_types = log_c_types_sm_parents_roster_host, sheet = "extra_log_sm_parents_roster") %>%  
     filter(reviewed %in% c("1"))
 
 # prepare seperate logs for the different data sheets
@@ -56,11 +56,11 @@ df_tool_data_host <- readxl::read_excel(loc_data_host, col_types = c_types_host)
 # roster
 data_nms_r_roster_host <- names(readxl::read_excel(path = loc_data_host, n_max = 300, sheet = "hh_roster"))
 c_types_r_roster_host <- ifelse(str_detect(string = data_nms_r_roster_host, pattern = "_other$"), "text", "guess")
-df_loop_r_roster_host <- readxl::read_excel(loc_data_host_host, col_types = c_types_r_roster_host, sheet = "hh_roster")
+df_loop_r_roster_host <- readxl::read_excel(loc_data_host, col_types = c_types_r_roster_host, sheet = "hh_roster")
 # income
 data_nms_r_income_host <- names(readxl::read_excel(path = loc_data_host, n_max = 300, sheet = "grp_income_received"))
 c_types_r_income_host <- ifelse(str_detect(string = data_nms_r_income_host, pattern = "_other$"), "text", "guess")
-df_loop_r_income_host <- readxl::read_excel(loc_data_host_host, col_types = c_types_r_income_host, sheet = "grp_income_received")
+df_loop_r_income_host <- readxl::read_excel(loc_data_host, col_types = c_types_r_income_host, sheet = "grp_income_received")
 
 # tool
 loc_tool_host <- "inputs/UGA2402_aba_mbarara_host_tool.xlsx"
@@ -192,7 +192,10 @@ df_variable_tracker <- tibble::tribble(
     "_geopoint_latitude", "Removed",    "Blanked columns related to the survey and PII",
     "_geopoint_longitude", "Removed",    "Blanked columns related to the survey and PII",
     "_geopoint_altitude", "Removed",    "Blanked columns related to the survey and PII",
-    "_geopoint_precision", "Removed",    "Blanked columns related to the survey and PII")
+    "_geopoint_precision", "Removed",    "Blanked columns related to the survey and PII",
+    "phone_consent", "Removed",    "Blanked columns related to the survey and PII",
+    "fgd_phone_number", "Removed",    "Blanked columns related to the survey and PII",
+    )
 
 
 # create workbook ---------------------------------------------------------
@@ -225,13 +228,13 @@ setColWidths(wb = wb_log_host, sheet = "Log book", cols = 1, widths = 36)
 setColWidths(wb = wb_log_host, sheet = "Log book", cols = 2:9, widths = 20)
 
 addWorksheet(wb_log_host, sheetName="Log book - roster")
-writeData(wb_log_host, sheet = "Log book - roster", df_formatted_log_host, startRow = 1, startCol = 1)
+writeData(wb_log_host, sheet = "Log book - roster", df_formatted_log_host_roster, startRow = 1, startCol = 1)
 addStyle(wb_log_host, sheet = "Log book - roster", hs1, rows = 1, cols = 1:11, gridExpand = FALSE)
 setColWidths(wb = wb_log_host, sheet = "Log book - roster", cols = 1, widths = 36)
 setColWidths(wb = wb_log_host, sheet = "Log book - roster", cols = 2:11, widths = 20)
 
 addWorksheet(wb_log_host, sheetName="Log book - income")
-writeData(wb_log_host, sheet = "Log book - income", df_formatted_log_host, startRow = 1, startCol = 1)
+writeData(wb_log_host, sheet = "Log book - income", df_formatted_log_host_income, startRow = 1, startCol = 1)
 addStyle(wb_log_host, sheet = "Log book - income", hs1, rows = 1, cols = 1:11, gridExpand = FALSE)
 setColWidths(wb = wb_log_host, sheet = "Log book - income", cols = 1, widths = 36)
 setColWidths(wb = wb_log_host, sheet = "Log book - income", cols = 2:11, widths = 20)
