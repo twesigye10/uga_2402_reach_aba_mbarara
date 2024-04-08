@@ -152,21 +152,58 @@ df_updating_sm_parents_host_roster <- cts_update_sm_parent_cols(input_df_cleanin
                                                                 input_sheet_name = "hh_roster", 
                                                                 input_index_col = "_index")
 
-
-
 # income_received ---------------------------------------------------------
 
+# then determine wich columns to remove from both the raw and clean data
+# cols_to_remove_host_income <- c("name")
+# filtered log
+df_filled_cl_host_income <- df_filled_cl_host %>% 
+    filter(sheet %in% c("grp_income_received"), !is.na(index))
 
+
+# check the cleaning log
+df_cl_review_host <- cleaningtools::review_cleaning_log(
+    raw_dataset = df_loop_r_income,
+    raw_data_uuid_column = "_submission__uuid",
+    cleaning_log = df_filled_cl_host_income,
+    cleaning_log_change_type_column = "change_type",
+    change_response_value = "change_response",
+    cleaning_log_question_column = "question",
+    cleaning_log_uuid_column = "uuid",
+    cleaning_log_new_value_column = "new_value")
+
+# filter log for cleaning
+df_final_cleaning_log_host_income <- df_filled_cl_host_income %>% 
+    filter(!question %in% c("duration_audit_sum_all_ms", "duration_audit_sum_all_minutes", "phone_consent",
+                            "_index", "_parent_index"), 
+           !uuid %in% c("all")) %>% 
+    filter(!str_detect(string = question, pattern = "\\w+\\/$"))
+
+# create the clean data from the raw data and cleaning log
+df_cleaning_step_host_income <- cleaningtools::create_clean_data(
+    raw_dataset = df_loop_r_income,
+    raw_data_uuid_column = "_submission__uuid",
+    cleaning_log = df_final_cleaning_log_host_income,
+    cleaning_log_change_type_column = "change_type",
+    change_response_value = "change_response",
+    NA_response_value = "blank_response",
+    no_change_value = "no_action",
+    remove_survey_value = "remove_survey",
+    cleaning_log_question_column = "question",
+    cleaning_log_uuid_column = "uuid",
+    cleaning_log_new_value_column = "new_value")
 
 
 # export datasets ---------------------------------------------------------
 
 list_of_datasets_host <- list("raw_data" = df_tool_data_host %>% select(-any_of(cols_to_remove_host)),
-                              # "raw_roster" = df_loop_r_roster %>% select(-any_of(cols_to_remove_host_roster)),
+                              "raw_roster" = df_loop_r_roster %>% select(-any_of(cols_to_remove_host_roster)),
+                              "raw_income_received" = df_loop_r_income,
                               "cleaned_data" = df_updating_sm_parents_host$updated_sm_parents,
-                              # "cleaned_roster" = df_updating_sm_parents_host_roster$updated_sm_parents,
-                              "extra_log_sm_parents" = df_updating_sm_parents_host$extra_log_sm_parents#,
-                              # "extra_log_sm_parents_roster" = df_updating_sm_parents_host_roster$extra_log_sm_parents,
+                              "cleaned_roster" = df_updating_sm_parents_host_roster$updated_sm_parents,
+                              "cleaned_income_received" = df_cleaning_step_host_income,
+                              "extra_log_sm_parents" = df_updating_sm_parents_host$extra_log_sm_parents,
+                              "extra_log_sm_parents_roster" = df_updating_sm_parents_host_roster$extra_log_sm_parents,
                               )
 
 openxlsx::write.xlsx(list_of_datasets_host,
