@@ -3,7 +3,7 @@ library(srvyr)
 library(supporteR)
 library(analysistools)
 
-# source("R/composite_indicators.R")
+source("R/composite_indicators.R")
 
 # clean data
 
@@ -37,7 +37,7 @@ df_ref_pop <- read_csv("inputs/refugee_population_aba_mbarara.csv")
 
 # data with composites
 df_data_with_composites_refugee <- df_main_clean_data_refugee %>% 
-    # create_composite_indicators() %>% 
+    create_composite_indicators() %>%
     mutate(strata = paste0("refugee_", interview_cell))
     
 
