@@ -46,6 +46,7 @@ df_hh_refugee_loop_roster_indicator_data <- df_loop_r_roster %>%
            int.female_hoh_single_parent = ifelse(female_hoh_single_parent %in% c("yes"), "yes_hoh_f_single_parent", "hoh_f_not_single_parent"),
            int.hoh_education_level = ifelse(member_hoh %in% c("yes"), hoh_education_level, NA),
            int.lactating_mother = ifelse(lactating_mother %in% c("yes"), "yes_lactating", "not_lactating"),
+           int.unaccompanied_children = ifelse(unaccompanied_separated_or_orphan %in% c("yes"), "yes_unaccompanied_children", "no_unaccompanied_children"),
            
     ) %>% 
     
@@ -56,6 +57,7 @@ df_hh_refugee_loop_roster_indicator_data <- df_loop_r_roster %>%
               int.f_hoh_single_parent = paste(int.female_hoh_single_parent, collapse = " : "),
               int.hoh_educ_level = paste(int.hoh_education_level, collapse = " : "),
               int.lactate_mother = paste(int.lactating_mother, collapse = " : "),
+              int.unaccompanied_child = paste(int.unaccompanied_children, collapse = " : "),
               
     ) %>%  
     mutate(i.member_hoh_by_gender = case_when(str_detect(string = int.hoh_by_gender, pattern = "yes_hoh") ~ "yes_hoh",
@@ -83,8 +85,12 @@ df_hh_refugee_loop_roster_indicator_data <- df_loop_r_roster %>%
            i.lactating_mother = case_when(str_detect(string = int.lactate_mother, pattern = "yes_lactating") ~ "yes_lactating",
                                           !str_detect(string = int.lactate_mother, pattern = "yes_lactating") & 
                                               str_detect(string = int.lactate_mother, pattern = "not_lactating")  ~ "not_lactating"),
+           i.unaccompanied_children = case_when(str_detect(string = int.unaccompanied_child, pattern = "yes_unaccompanied_children") ~ "yes_unaccompanied_children",
+                                          !str_detect(string = int.unaccompanied_child, pattern = "yes_unaccompanied_children") & 
+                                              str_detect(string = int.unaccompanied_child, pattern = "no_unaccompanied_children")  ~ "no_unaccompanied_children"),
+           
     ) %>%
      select(-c(starts_with("int.")))
-   
+write_csv(x = df_hh_refugee_loop_roster_indicator_data, file = "outputs/hhhh.csv")   
 
     
