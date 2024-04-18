@@ -11,6 +11,7 @@ create_composites_main_refugee <- function(input_df) {
                                               hh_date_displaced > as_date("2019-03-01") ~ "up_to_60_months_ago",
                                               hh_date_displaced > as_date("2013-03-01") ~ "up_to_120_months_ago",
                                               TRUE ~ "more_than_10_years_ago"),
+               i.avg_family_size = rowSums(select(., any_of(c("number_hh_members_in_mbarara","number_hh_members_live_in_settlement", "number_hh_members_live_in_other_places"))), na.rm = TRUE),
                
                i.rank_mbarara_decision_impact_on_livelihood_stay_mbarara = rank_mbarara_decision_impact_on_livelihood,
                
@@ -105,10 +106,6 @@ create_composites_main_host <- function(input_df) {
                                             respondent_age <= 24 ~ "age_21_24",
                                             respondent_age <= 59 ~ "age_25_59",
                                             respondent_age >= 60 ~ "age_greater_59"),
-               i.avg_hh_size = case_when(count_hh_number <= 3 ~ "between_1_and_3_members",
-                                         count_hh_number <= 6 ~ "between_4_and_6_members",
-                                         count_hh_number <= 9 ~ "between_7_and_9_members",
-                                         count_hh_number >= 10 ~ "10_or_more_members"),
                i.top_food_sources = paste(main_hh_source_of_food, second_hh_source_of_food, third_hh_source_of_food, sep = " "),
                
                i.fcs = (fcs_cereals*2 + fcs_pulses*3 + fcs_vegetables*1 + fcs_fruits*1 + fcs_protein*4 + fcs_dairy*4 +
@@ -191,6 +188,6 @@ create_composites_loop_roster_host <- function(input_df) {
         
         select(-c(starts_with("int.")))
 }
-
+ 
 
 
