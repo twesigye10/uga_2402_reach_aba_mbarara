@@ -35,12 +35,14 @@ all_loa_refugee <- read_csv("inputs/r_loa_aba_mbarara_refugee.csv")
 # pop
 df_ref_pop <- read_csv("inputs/refugee_population_aba_mbarara.csv")
 
-# data with composites
+# main data with composites
 df_data_with_composites_refugee <- df_main_clean_data_refugee %>% 
-    create_composite_indicators() %>%
+    create_composite_indicators_main() %>%
     mutate(strata = paste0("refugee_", interview_cell))
     
-
+# roster
+df_clean_loop_r_roster_with_composites_refugee <- df_clean_loop_r_roster_refugee %>% 
+    create_composite_indicators_roster()
 
 # refugee analysis - main -------------------------------------------------
 
@@ -67,12 +69,9 @@ df_main_analysis_refugee <- analysistools::create_analysis(design = main_ref_svy
 # refugee analysis - roster -----------------------------------------------
 
 # weights
-df_roster_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_composites_refugee %>% 
-                                                             filter(status %in% c("refugee")),
-                                                         sample_data = df_ref_pop,
-                                                         strata_column_dataset = "strata",
-                                                         strata_column_sample = "strata",
-                                                         population_column =  "population")
+df_roster_ref_with_weights <- df_clean_loop_r_roster_with_composites_refugee %>% 
+    left_join(df_main_ref_with_weights %>% select(any_of(c("_uuid", "strata", "weights"))), by = c("_submission__uuid" = "_uuid"))
+
 # survey object
 roster_ref_svy <- as_survey(.data = df_roster_ref_with_weights, strata = strata, weights = weights)
 
@@ -88,12 +87,9 @@ df_roster_analysis_refugee <- analysistools::create_analysis(design = roster_ref
 # refugee analysis - income -----------------------------------------------
 
 # weights
-df_income_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_composites_refugee %>% 
-                                                             filter(status %in% c("refugee")),
-                                                         sample_data = df_ref_pop,
-                                                         strata_column_dataset = "strata",
-                                                         strata_column_sample = "strata",
-                                                         population_column =  "population")
+df_income_ref_with_weights <- df_clean_loop_r_income_refugee %>% 
+    left_join(df_main_ref_with_weights %>% select(any_of(c("_uuid", "strata", "weights"))), by = c("_submission__uuid" = "_uuid"))
+    
 # survey object - income received
 income_ref_svy <- as_survey(.data = df_income_ref_with_weights, strata = strata, weights = weights)
 
