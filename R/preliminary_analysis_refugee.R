@@ -41,7 +41,8 @@ df_data_with_composites_refugee <- df_main_clean_data_refugee %>%
     mutate(strata = paste0("refugee_", interview_cell))
     
 
-# refugee analysis --------------------------------------------------------
+
+# refugee analysis - main -------------------------------------------------
 
 # weights
 df_main_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_composites_refugee %>% 
@@ -55,6 +56,37 @@ main_ref_svy <- as_survey(.data = df_main_ref_with_weights, strata = strata, wei
 df_main_analysis_refugee <- analysistools::create_analysis(design = main_ref_svy, 
                                                       loa = dap,
                                                       sm_separator = "/")
+
+
+# refugee analysis - roster -----------------------------------------------
+
+# weights
+df_roster_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_composites_refugee %>% 
+                                                             filter(status %in% c("refugee")),
+                                                         sample_data = df_ref_pop,
+                                                         strata_column_dataset = "strata",
+                                                         strata_column_sample = "strata",
+                                                         population_column =  "population")
+roster_ref_svy <- as_survey(.data = df_roster_ref_with_weights, strata = strata, weights = weights)
+
+df_roster_analysis_refugee <- analysistools::create_analysis(design = roster_ref_svy, 
+                                                             loa = dap,
+                                                             sm_separator = "/")
+
+# refugee analysis - income -----------------------------------------------
+
+# weights
+df_income_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_composites_refugee %>% 
+                                                             filter(status %in% c("refugee")),
+                                                         sample_data = df_ref_pop,
+                                                         strata_column_dataset = "strata",
+                                                         strata_column_sample = "strata",
+                                                         population_column =  "population")
+income_ref_svy <- as_survey(.data = df_income_ref_with_weights, strata = strata, weights = weights)
+
+df_income_analysis_refugee <- analysistools::create_analysis(design = income_ref_svy, 
+                                                             loa = dap,
+                                                             sm_separator = "/")
 
 
 # analysis tables ---------------------------------------------------------
