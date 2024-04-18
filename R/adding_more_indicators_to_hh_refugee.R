@@ -32,7 +32,7 @@ c_types_r_income <- ifelse(str_detect(string = data_nms_r_income, pattern = "_ot
 df_loop_r_income <- readxl::read_excel(loc_data_refugee, col_types = c_types_r_income, sheet = "grp_income_received")
 
 
-df_hh_loop_roster_indicator_data <- df_loop_r_roster %>%
+df_hh_refugee_loop_roster_indicator_data <- df_loop_r_roster %>%
      rename(uuid = "_submission__uuid") %>% 
      mutate(int.member_hoh_by_gender = ifelse(member_hoh %in% c("yes"), member_hoh, NA),
             int.hh_with_disabled_member =  case_when(if_any(c(vulnerability_see, vulnerability_hear, vulnerability_walk, vulnerability_concentrate, 
