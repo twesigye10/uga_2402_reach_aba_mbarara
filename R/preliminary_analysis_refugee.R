@@ -29,8 +29,8 @@ loc_tool_refugee <- "inputs/UGA2402_aba_mbarara_refugee_tool.xlsx"
 df_survey_refugee <- readxl::read_excel(loc_tool_refugee, sheet = "survey")
 df_choices_refugee <- readxl::read_excel(loc_tool_refugee, sheet = "choices")
 
-# dap
-dap_refugee <- read_csv("inputs/r_dap_aba_mbarara_refugee.csv")
+# loa // list of analysis
+all_loa_refugee <- read_csv("inputs/r_loa_aba_mbarara_refugee.csv")
 
 # pop
 df_ref_pop <- read_csv("inputs/refugee_population_aba_mbarara.csv")
@@ -51,10 +51,16 @@ df_main_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_co
                                                   strata_column_dataset = "strata",
                                                   strata_column_sample = "strata",
                                                   population_column =  "population")
+# survey object
 main_ref_svy <- as_survey(.data = df_main_ref_with_weights, strata = strata, weights = weights)
 
+# loa
+df_main_loa <- all_loa_refugee %>% 
+    filter(dataset %in% c("main"))
+
+# analysis
 df_main_analysis_refugee <- analysistools::create_analysis(design = main_ref_svy, 
-                                                      loa = dap,
+                                                      loa = df_main_loa,
                                                       sm_separator = "/")
 
 
@@ -67,10 +73,16 @@ df_roster_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_
                                                          strata_column_dataset = "strata",
                                                          strata_column_sample = "strata",
                                                          population_column =  "population")
+# survey object
 roster_ref_svy <- as_survey(.data = df_roster_ref_with_weights, strata = strata, weights = weights)
 
+# loa roster
+df_roster_loa <- all_loa_refugee %>% 
+    filter(dataset %in% c("roster"))
+
+# analysis
 df_roster_analysis_refugee <- analysistools::create_analysis(design = roster_ref_svy, 
-                                                             loa = dap,
+                                                             loa = df_roster_loa,
                                                              sm_separator = "/")
 
 # refugee analysis - income -----------------------------------------------
@@ -82,10 +94,16 @@ df_income_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_
                                                          strata_column_dataset = "strata",
                                                          strata_column_sample = "strata",
                                                          population_column =  "population")
+# survey object - income received
 income_ref_svy <- as_survey(.data = df_income_ref_with_weights, strata = strata, weights = weights)
 
+# loa income received
+df_income_loa <- all_loa_refugee %>% 
+    filter(dataset %in% c("income_received"))
+
+# analysis
 df_income_analysis_refugee <- analysistools::create_analysis(design = income_ref_svy, 
-                                                             loa = dap,
+                                                             loa = df_income_loa,
                                                              sm_separator = "/")
 
 
