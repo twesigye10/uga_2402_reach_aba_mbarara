@@ -44,7 +44,7 @@ df_clean_loop_r_roster_with_composites_refugee <- df_clean_loop_r_roster_refugee
 
 # refugee analysis - main -------------------------------------------------
 
-# weights
+# main
 df_main_ref <- df_data_with_composites_refugee
 # survey object
 main_ref_svy <- as_survey(.data = df_main_ref, strata = strata)
@@ -61,7 +61,7 @@ df_main_analysis_refugee <- analysistools::create_analysis(design = main_ref_svy
 
 # refugee analysis - roster -----------------------------------------------
 
-# weights
+# roster
 df_roster_ref <- df_clean_loop_r_roster_with_composites_refugee %>% 
     left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
 
@@ -79,7 +79,7 @@ df_roster_analysis_refugee <- analysistools::create_analysis(design = roster_ref
 
 # refugee analysis - income -----------------------------------------------
 
-# weights
+# income received
 df_income_ref <- df_clean_loop_r_income_refugee %>% 
     left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
     
