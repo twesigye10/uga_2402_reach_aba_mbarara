@@ -1,4 +1,3 @@
-
 # create_composites -------------------------------------------------------
 create_composites_main_refugee <- function(input_df) {
     input_df %>% 
@@ -26,9 +25,20 @@ create_composites_main_refugee <- function(input_df) {
                i.rank_refugee_host_relationship_by_stay_mbarara = rank_refugee_host_relationship,
                i.feeling_part_of_decision_making_by_stay_mbarara = feeling_part_of_decision_making,
                
-        ) %>%
-        
-        select(-c(starts_with("int.")))
+        ) %>% 
+        addindicators::add_fcs(cutoffs = "normal",
+                               fsl_fcs_cereal = "fcs_cereals",
+                               fsl_fcs_legumes = "fcs_pulses",
+                               fsl_fcs_veg = "fcs_vegetables",
+                               fsl_fcs_fruit = "fcs_fruits",
+                               fsl_fcs_meat = "fcs_protein",
+                               fsl_fcs_dairy = "fcs_dairy",
+                               fsl_fcs_sugar = "fcs_sugar",
+                               fsl_fcs_oil = "fcs_oils"
+        ) %>% 
+        select(-starts_with("fcs_weight"), -c(starts_with("int."))) %>% 
+        rename(i.fcs_score = fsl_fcs_score) %>% 
+        rename(i.fcs_cat = fsl_fcs_cat)
 }
 
 # loop_roster_refugee
