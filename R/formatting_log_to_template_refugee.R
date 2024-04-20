@@ -195,6 +195,7 @@ df_variable_tracker <- tibble::tribble(
     "_geopoint_precision", "Removed",    "Blanked columns related to the survey and PII",
     "phone_consent", "Removed",    "Blanked columns related to the survey and PII",
     "fgd_phone_number", "Removed",    "Blanked columns related to the survey and PII",
+    "how_participates_in_decision_making", "Removed", "Can not analyse free text",
     )
 
 

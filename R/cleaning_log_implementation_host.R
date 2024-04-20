@@ -44,7 +44,7 @@ cols_to_remove_host <- c("audit", "audit_URL", "pt_num_msg", "pt_num_validation_
                          "latitude", "longitude", "contact", "geopoint",
                          "instance_name", "_geopoint_latitude", "_geopoint_longitude",
                          "_geopoint_altitude", "_geopoint_precision",
-                         "phone_consent", "fgd_phone_number")
+                         "phone_consent", "fgd_phone_number", "how_participates_in_decision_making")
 
 
 

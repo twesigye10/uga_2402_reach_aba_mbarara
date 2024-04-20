@@ -10,6 +10,7 @@ library(cluster)
 source("R/support_functions.R")
 source("support_files/credentials.R")
 
+
 # read data ---------------------------------------------------------------
 
 loc_data_refugee <- "inputs/UGA2402_aba_mbarara_refugee_data.xlsx"
@@ -41,14 +42,14 @@ df_repeat_hh_roster_data <- df_tool_data_refugee %>%
 
 
 # download audit files
-download_audit_files(df = df_tool_data_refugee, 
-                     uuid_column = "_uuid", 
-                     audit_dir = "inputs/audit_files_refugee", 
-                     usr = user_acc, 
-                     pass = user_pss)
+download_audit_files(df = df_tool_data_refugee,
+                    uuid_column = "_uuid",
+                    audit_dir = "inputs/audit_files_refugee",
+                    usr = user_acc,
+                    pass = user_pss)
 # zip audit files folder
 if (dir.exists("inputs/audit_files_refugee")) {
-    zip::zip(zipfile = "inputs/audit_files_refugee.zip", 
+    zip::zip(zipfile = "inputs/audit_files_refugee.zip",
              files = list.dirs(path = "inputs/audit_files_refugee/", full.names = TRUE, recursive = FALSE),
              mode = "cherry-pick")
 }
@@ -85,12 +86,12 @@ df_list_logical_checks_refugee <- read_csv("inputs/logical_checks_aba_mbarara_re
 
 # combine cleaningtools checks
 list_log_refugee <- df_tool_data_with_audit_time_refugee %>%
-    # check_pii(uuid_column = "_uuid") %>%
+    check_pii(uuid_column = "_uuid") %>%
     check_duration(column_to_check = "duration_audit_sum_all_minutes",
                    uuid_column = "_uuid",
                    log_name = "duration_log",
                    lower_bound = 20,
-                   higher_bound = 120) %>% 
+                   higher_bound = 120) %>%
     check_outliers(uuid_column = "_uuid", sm_separator = "/",
                    strongness_factor = 3, columns_not_to_check = outlier_cols_not_4_checking) %>% 
     check_soft_duplicates(kobo_survey = df_survey_refugee,
@@ -105,7 +106,7 @@ list_log_refugee <- df_tool_data_with_audit_time_refugee %>%
 # logical checks
 df_main_plus_loop_logical_checks <- df_repeat_hh_roster_data %>%
     check_logical_with_list(uuid_column = "_uuid",
-                            list_of_check = df_list_logical_checks_host,
+                            list_of_check = df_list_logical_checks_refugee,
                             check_id_column = "check_id",
                             check_to_perform_column = "check_to_perform",
                             columns_to_clean_column = "columns_to_clean",
@@ -127,8 +128,8 @@ df_respondent_data_check <- df_repeat_hh_roster_data %>%
            i.check.question = "respondent_age",
            i.check.old_value = as.character(respondent_age),
            i.check.new_value = "NA",
-           i.check.issue = glue("respondent_data : {respondent_age}, {respondent_gender}, details not given in the hh_roster"),
-           i.check.description = "",
+           i.check.issue = "respondent_data_not_in_hh_roster",
+           i.check.description = glue("respondent_data : {respondent_age}, {respondent_gender}, details not given in the hh_roster"),
            i.check.other_text = "",
            i.check.comment = "",
            i.check.reviewed = "",
@@ -138,7 +139,49 @@ df_respondent_data_check <- df_repeat_hh_roster_data %>%
     batch_select_rename()
 list_log_refugee$respondent_data_inconsistencies <- df_respondent_data_check
 
-   
+# rename_survey_ponits wrongly filled
+df_interview_cell_rename <- df_tool_data_refugee %>% 
+    mutate(new_interview_cell = case_when(point_number %in% c("kak_cen_cr_21", "kak_cen_cr_22") ~   "kakoba_central", 
+                                      point_number %in% c("sur_cam_cr_51", "sur_cam_cr_52", "sur_cam_cr_57",
+                                                          "sur_cam_cr_16", "sur_cam_cr_3", "sur_cam_cr_1") ~   "survey_camp",  
+                                      point_number %in% c("nya_cen_cr_19") ~   "nyamityobora_central",
+                            TRUE ~ NA)) %>% 
+    filter(!is.na(new_interview_cell)) %>% 
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "interview_cell",
+           i.check.old_value = as.character(interview_cell),
+           i.check.new_value = new_interview_cell,
+           i.check.issue = "interview_cell_corrected",
+           i.check.description = "",
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>% 
+    batch_select_rename()
+list_log_refugee$interview_cell_rename <- df_interview_cell_rename
+
+# If they were displaced less then a year but they lived in Mbarara more then 1 year
+df_hh_date_displaced <- df_tool_data_refugee %>%
+    filter(hh_date_displaced > as_date("2023-03-01") &
+           hh_time_stayed_in_mbarara %in% c("between_1_2_years", "between_3_5_years", "greater_than_5_years")) %>%
+    mutate(i.check.uuid = `_uuid`,
+           i.check.change_type = "change_response",
+           i.check.question = "hh_date_displaced",
+           i.check.old_value = as.character(hh_date_displaced),
+           i.check.new_value = "NA",
+           i.check.issue = "hh_date_displaced_vs_time_stayed_in_mbarara",
+           i.check.description = glue("hh_time_stayed_in_mbarara : {hh_time_stayed_in_mbarara}, but  hh_date_displaced : {hh_date_displaced}"),
+           i.check.other_text = "",
+           i.check.comment = "",
+           i.check.reviewed = "",
+           i.check.so_sm_choices = "",
+           i.check.sheet = "",
+           i.check.index = "") %>%
+    batch_select_rename()
+list_log_refugee$hh_date_displaced <- df_hh_date_displaced
 
 
 # other checks ------------------------------------------------------------
@@ -187,6 +230,7 @@ df_potential_loop_outliers_roster_r <- df_loop_outliers_roster_r$potential_outli
            i.check.index = index) %>% 
     batch_select_rename()
 list_log_refugee$outliers_roster_log_r <- df_potential_loop_outliers_roster_r
+
 
 # income
 df_loop_outliers_income_r <- cleaningtools::check_outliers(dataset = df_loop_r_income  %>%  mutate(loop_uuid = paste0(`_submission__uuid`, " * ", `_index`)), 
@@ -286,6 +330,7 @@ df_greater_thresh_distance_refugee <- cts_check_threshold_distance(input_sample_
                                                                    input_uuid_col  = "_uuid",
                                                                    input_point_id_col = "point_number",
                                                                    input_threshold_dist = 150)
+
 list_log_refugee$greater_thresh_distance <- df_greater_thresh_distance_refugee
     
 
