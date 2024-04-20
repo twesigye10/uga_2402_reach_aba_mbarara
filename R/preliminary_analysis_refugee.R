@@ -32,33 +32,26 @@ df_choices_refugee <- readxl::read_excel(loc_tool_refugee, sheet = "choices")
 # loa // list of analysis
 all_loa_refugee <- read_csv("inputs/r_loa_aba_mbarara_refugee.csv")
 
-# pop
-df_ref_pop <- read_csv("inputs/refugee_population_aba_mbarara.csv")
-
 # main data with composites
 df_data_with_composites_refugee <- df_main_clean_data_refugee %>% 
     create_composite_indicators_main() %>%
-    mutate(strata = paste0("refugee_", interview_cell))
+    mutate(strata = paste0("refugee_", interview_cell)) %>% 
+    filter(!interview_cell %in% c("kyamugolanyi"))
     
 # roster
-df_clean_loop_r_roster_with_composites_refugee <- df_clean_loop_r_roster_refugee %>% 
-    create_composite_indicators_roster()
+df_clean_loop_r_roster_with_composites_refugee <- df_clean_loop_r_roster_refugee #%>% 
+    # create_composite_indicators_roster()
 
 # refugee analysis - main -------------------------------------------------
 
 # weights
-df_main_ref_with_weights <- analysistools::add_weights(dataset = df_data_with_composites_refugee %>% 
-                                                      filter(status %in% c("refugee")),
-                                                  sample_data = df_ref_pop,
-                                                  strata_column_dataset = "strata",
-                                                  strata_column_sample = "strata",
-                                                  population_column =  "population")
+df_main_ref <- df_data_with_composites_refugee
 # survey object
-main_ref_svy <- as_survey(.data = df_main_ref_with_weights, strata = strata, weights = weights)
+main_ref_svy <- as_survey(.data = df_main_ref, strata = strata)
 
 # loa
 df_main_loa <- all_loa_refugee %>% 
-    filter(dataset %in% c("main"))
+    filter(dataset %in% c("main_data"))
 
 # analysis
 df_main_analysis_refugee <- analysistools::create_analysis(design = main_ref_svy, 
@@ -69,11 +62,11 @@ df_main_analysis_refugee <- analysistools::create_analysis(design = main_ref_svy
 # refugee analysis - roster -----------------------------------------------
 
 # weights
-df_roster_ref_with_weights <- df_clean_loop_r_roster_with_composites_refugee %>% 
-    left_join(df_main_ref_with_weights %>% select(any_of(c("_uuid", "strata", "weights"))), by = c("_submission__uuid" = "_uuid"))
+df_roster_ref <- df_clean_loop_r_roster_with_composites_refugee %>% 
+    left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
 
 # survey object
-roster_ref_svy <- as_survey(.data = df_roster_ref_with_weights, strata = strata, weights = weights)
+roster_ref_svy <- as_survey(.data = df_roster_ref, strata = strata)
 
 # loa roster
 df_roster_loa <- all_loa_refugee %>% 
@@ -87,11 +80,11 @@ df_roster_analysis_refugee <- analysistools::create_analysis(design = roster_ref
 # refugee analysis - income -----------------------------------------------
 
 # weights
-df_income_ref_with_weights <- df_clean_loop_r_income_refugee %>% 
-    left_join(df_main_ref_with_weights %>% select(any_of(c("_uuid", "strata", "weights"))), by = c("_submission__uuid" = "_uuid"))
+df_income_ref <- df_clean_loop_r_income_refugee %>% 
+    left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
     
 # survey object - income received
-income_ref_svy <- as_survey(.data = df_income_ref_with_weights, strata = strata, weights = weights)
+income_ref_svy <- as_survey(.data = df_income_ref, strata = strata)
 
 # loa income received
 df_income_loa <- all_loa_refugee %>% 
@@ -105,10 +98,17 @@ df_income_analysis_refugee <- analysistools::create_analysis(design = income_ref
 
 # analysis tables ---------------------------------------------------------
 
-df_main_refugee_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_main_analysis_refugee$results_table)
+# combine the tables
 
-presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_main_refugee_analysis_table,
-                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_refugee_main.xlsx",
-                                             table_sheet_name = "main"
+df_combined_tables <- bind_rows(df_main_analysis_refugee$results_table,
+                                df_roster_analysis_refugee$results_table,
+                                df_income_analysis_refugee$results_table
+                                )
+    
+df_refugee_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables)
+
+presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_refugee_analysis_table,
+                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_refugee.xlsx",
+                                             table_sheet_name = "refugee"
                                              
 )
