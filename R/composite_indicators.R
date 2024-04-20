@@ -17,11 +17,6 @@ create_composites_main_refugee <- function(input_df) {
                
                i.top_food_sources = paste(main_hh_source_of_food, second_hh_source_of_food, third_hh_source_of_food, sep = " "),
                
-               i.fcs = (fcs_cereals*2 + fcs_pulses*3 + fcs_vegetables*1 + fcs_fruits*1 + fcs_protein*4 + fcs_dairy*4 +
-                            fcs_sugar*0.5 + fcs_oils*0.5),
-               i.fcs_cat = case_when(i.fcs <= 21 ~ "Poor",
-                                     i.fcs <= 35 ~ "Borderline",
-                                     i.fcs <= 112 ~ "Acceptable"),
                i.shelter_index = number_hh_members_in_mbarara/shelter_room_sleep_number,
                i.enough_money_for_food_single_f_hoh = enough_money_for_food,
                i.enough_money_for_educ_and_health_single_f_hoh = enough_money_for_educ_and_health,
