@@ -1,29 +1,12 @@
 # create_composites -------------------------------------------------------
 create_composites_main_refugee <- function(input_df) {
     input_df %>% 
-        mutate(#i.respondent_age = case_when(respondent_age <= 20 ~ "age_18_20",
-                                            # respondent_age <= 24 ~ "age_21_24",
-                                            # respondent_age <= 59 ~ "age_25_59",
-                                            # respondent_age >= 60 ~ "age_greater_59"),
-               i.months_displaced = case_when(hh_date_displaced <= as_date("2013-03-01") ~ "up_to_120_months_ago+",
+        mutate(i.months_displaced = case_when(hh_date_displaced <= as_date("2013-03-01") ~ "up_to_120_months_ago+",
                                               hh_date_displaced < as_date("2019-03-01") ~ "up_to_60_months_ago",
                                               hh_date_displaced < as_date("2021-03-01") ~ "up_to_36_months_ago",
                                               hh_date_displaced < as_date("2023-03-01") ~ "up_to_12_months_ago"),
                i.avg_family_size = rowSums(select(., any_of(c("number_hh_members_in_mbarara","number_hh_members_live_in_settlement", "number_hh_members_live_in_other_places"))), na.rm = TRUE),
-               
-               # i.rank_mbarara_decision_impact_on_livelihood_stay_mbarara = rank_mbarara_decision_impact_on_livelihood,
-               # 
-               # i.top_food_sources = paste(main_hh_source_of_food, second_hh_source_of_food, third_hh_source_of_food, sep = " "),
-               
-               i.shelter_index = number_hh_members_in_mbarara/shelter_room_sleep_number,
-               # i.enough_money_for_food_single_f_hoh = enough_money_for_food,
-               # i.enough_money_for_educ_and_health_single_f_hoh = enough_money_for_educ_and_health,
-               # i.facility_type_hh_members_sought_treatment_by_reason = facility_type_hh_members_sought_treatment,
-               # i.hh_received_aid_past_single_f_hoh = hh_received_aid_past,
-               # i.unmet_needs_single_f_hoh = unmet_needs,
-               # i.rank_refugee_host_relationship_by_stay_mbarara = rank_refugee_host_relationship,
-               # i.feeling_part_of_decision_making_by_stay_mbarara = feeling_part_of_decision_making,
-               
+               i.shelter_index = number_hh_members_in_mbarara/shelter_room_sleep_number  
         ) %>% 
         addindicators::add_fcs(cutoffs = "normal",
                                fsl_fcs_cereal = "fcs_cereals",
@@ -164,19 +147,7 @@ create_composite_ind_hh_ref <- function(input_df) {
 # composites_main_host
 create_composites_main_host <- function(input_df) {
     input_df %>% 
-        mutate(#i.respondent_age = case_when(respondent_age <= 20 ~ "age_18_20",
-                                            # respondent_age <= 24 ~ "age_21_24",
-                                            # respondent_age <= 59 ~ "age_25_59",
-                                            # respondent_age >= 60 ~ "age_greater_59"),
-               # i.top_food_sources = paste(main_hh_source_of_food, second_hh_source_of_food, third_hh_source_of_food, sep = " "),
-               i.shelter_index = number_hh_members_in_mbarara/shelter_room_sleep_number,
-               # i.enough_money_for_food_single_f_hoh = enough_money_for_food,
-               # i.enough_money_for_educ_and_health_single_f_hoh = enough_money_for_educ_and_health,
-               # i.facility_type_hh_members_sought_treatment_by_reason = facility_type_hh_members_sought_treatment,
-               # i.hh_received_aid_past_single_f_hoh = hh_received_aid_past,
-               # i.unmet_needs_single_f_hoh = unmet_needs,
-               # i.rank_refugee_host_relationship_by_stay_mbarara = rank_refugee_host_relationship,
-               # i.feeling_part_of_decision_making_by_stay_mbarara = feeling_part_of_decision_making,
+        mutate(i.shelter_index = number_hh_members_in_mbarara/shelter_room_sleep_number,
                
         ) %>%
         addindicators::add_fcs(cutoffs = "normal",
