@@ -6,7 +6,7 @@ create_composites_main_refugee <- function(input_df) {
                                               hh_date_displaced < as_date("2021-03-01") ~ "up_to_36_months_ago",
                                               hh_date_displaced < as_date("2023-03-01") ~ "up_to_12_months_ago"),
                i.avg_family_size = rowSums(select(., any_of(c("number_hh_members_in_mbarara","number_hh_members_live_in_settlement", "number_hh_members_live_in_other_places"))), na.rm = TRUE),
-               i.shelter_index = number_hh_members_in_mbarara/shelter_room_sleep_number  
+               i.shelter_index = (number_hh_members_in_mbarara - i.num_children_less_than_one)/shelter_room_sleep_number  
         ) %>% 
         addindicators::add_fcs(cutoffs = "normal",
                                fsl_fcs_cereal = "fcs_cereals",
@@ -72,8 +72,7 @@ create_composites_loop_roster_refugee <- function(input_df) {
 # composites_main_host
 create_composites_main_host <- function(input_df) {
     input_df %>% 
-        mutate(i.shelter_index = number_hh_members_in_mbarara/shelter_room_sleep_number,
-               
+        mutate(i.shelter_index = (number_hh_members_in_mbarara - i.num_children_less_than_one)/shelter_room_sleep_number,
         ) %>%
         addindicators::add_fcs(cutoffs = "normal",
                                fsl_fcs_cereal = "fcs_cereals",

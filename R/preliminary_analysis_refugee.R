@@ -104,6 +104,13 @@ df_hh_with_unaccompanied_separated_or_orphan_refugee <- df_clean_loop_r_roster_r
     select(-int.unaccompanied_separated_or_orphan)
 add_checks_data_to_list(input_list_name = "list_individual_to_hh_refugee", input_df_name = "df_hh_with_unaccompanied_separated_or_orphan_refugee")
 
+# number of children less than 1
+df_num_children_less_than_one <- df_clean_loop_r_roster_refugee %>% 
+    group_by(`_submission__uuid`) %>% 
+    summarise(i.num_children_less_than_one = sum(age %in% c("0"), na.rm = TRUE))
+add_checks_data_to_list(input_list_name = "list_individual_to_hh_refugee", input_df_name = "df_num_children_less_than_one")
+
+
 
 # combine the calculated indicators
 
