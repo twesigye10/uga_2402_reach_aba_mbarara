@@ -52,7 +52,7 @@ df_member_hoh_by_gender_refugee <- df_clean_loop_r_roster_refugee %>%
     filter(member_hoh %in% c("yes")) %>% 
     group_by(`_submission__uuid`) %>% 
     filter(n() == 1) %>% 
-    select(`_submission__uuid`, i.member_hoh_gender = gender, i.member_hoh_age = age, i.hoh_education_level = hoh_education_level)
+    select(`_submission__uuid`, i.member_hoh_by_gender = gender, i.member_hoh_age = age, i.hoh_education_level = hoh_education_level)
 add_checks_data_to_list(input_list_name = "list_individual_to_hh_refugee", input_df_name = "df_member_hoh_by_gender_refugee")
 
 # hh_with_disabled_member
