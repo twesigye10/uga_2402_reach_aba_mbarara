@@ -95,14 +95,6 @@ df_hh_with_lactating_mother_host <- df_clean_loop_r_roster_host %>%
     select(-int.hh_lactating_mother)
 add_checks_data_to_list(input_list_name = "list_individual_to_hh_host", input_df_name = "df_hh_with_lactating_mother_host")
 
-# unaccompanied_separated_or_orphan
-df_hh_with_unaccompanied_separated_or_orphan_host <- df_clean_loop_r_roster_host %>% 
-    group_by(`_submission__uuid`) %>% 
-    summarise(int.unaccompanied_separated_or_orphan = paste(unaccompanied_separated_or_orphan, collapse = " : ")) %>% 
-    mutate(i.hh_with_unaccompanied_separated_or_orphan = case_when(str_detect(string = int.unaccompanied_separated_or_orphan, pattern = "yes") ~ "yes",
-                                                                   !str_detect(string = int.unaccompanied_separated_or_orphan, pattern = "yes") ~ "no")) %>% 
-    select(-int.unaccompanied_separated_or_orphan)
-add_checks_data_to_list(input_list_name = "list_individual_to_hh_host", input_df_name = "df_hh_with_unaccompanied_separated_or_orphan_host")
 
 
 # combine the calculated indicators
