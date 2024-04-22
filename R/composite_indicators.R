@@ -164,29 +164,34 @@ create_composite_ind_hh_ref <- function(input_df) {
 # composites_main_host
 create_composites_main_host <- function(input_df) {
     input_df %>% 
-        mutate(i.respondent_age = case_when(respondent_age <= 20 ~ "age_18_20",
-                                            respondent_age <= 24 ~ "age_21_24",
-                                            respondent_age <= 59 ~ "age_25_59",
-                                            respondent_age >= 60 ~ "age_greater_59"),
-               i.top_food_sources = paste(main_hh_source_of_food, second_hh_source_of_food, third_hh_source_of_food, sep = " "),
-               
-               i.fcs = (fcs_cereals*2 + fcs_pulses*3 + fcs_vegetables*1 + fcs_fruits*1 + fcs_protein*4 + fcs_dairy*4 +
-                            fcs_sugar*0.5 + fcs_oils*0.5),
-               i.fcs_cat = case_when(i.fcs <= 21 ~ "Poor",
-                                     i.fcs <= 35 ~ "Borderline",
-                                     i.fcs <= 112 ~ "Acceptable"),
+        mutate(#i.respondent_age = case_when(respondent_age <= 20 ~ "age_18_20",
+                                            # respondent_age <= 24 ~ "age_21_24",
+                                            # respondent_age <= 59 ~ "age_25_59",
+                                            # respondent_age >= 60 ~ "age_greater_59"),
+               # i.top_food_sources = paste(main_hh_source_of_food, second_hh_source_of_food, third_hh_source_of_food, sep = " "),
                i.shelter_index = number_hh_members_in_mbarara/shelter_room_sleep_number,
-               i.enough_money_for_food_single_f_hoh = enough_money_for_food,
-               i.enough_money_for_educ_and_health_single_f_hoh = enough_money_for_educ_and_health,
-               i.facility_type_hh_members_sought_treatment_by_reason = facility_type_hh_members_sought_treatment,
-               i.hh_received_aid_past_single_f_hoh = hh_received_aid_past,
-               i.unmet_needs_single_f_hoh = unmet_needs,
-               i.rank_refugee_host_relationship_by_stay_mbarara = rank_refugee_host_relationship,
-               i.feeling_part_of_decision_making_by_stay_mbarara = feeling_part_of_decision_making,
+               # i.enough_money_for_food_single_f_hoh = enough_money_for_food,
+               # i.enough_money_for_educ_and_health_single_f_hoh = enough_money_for_educ_and_health,
+               # i.facility_type_hh_members_sought_treatment_by_reason = facility_type_hh_members_sought_treatment,
+               # i.hh_received_aid_past_single_f_hoh = hh_received_aid_past,
+               # i.unmet_needs_single_f_hoh = unmet_needs,
+               # i.rank_refugee_host_relationship_by_stay_mbarara = rank_refugee_host_relationship,
+               # i.feeling_part_of_decision_making_by_stay_mbarara = feeling_part_of_decision_making,
                
         ) %>%
-        
-        select(-c(starts_with("int.")))
+        addindicators::add_fcs(cutoffs = "normal",
+                               fsl_fcs_cereal = "fcs_cereals",
+                               fsl_fcs_legumes = "fcs_pulses",
+                               fsl_fcs_veg = "fcs_vegetables",
+                               fsl_fcs_fruit = "fcs_fruits",
+                               fsl_fcs_meat = "fcs_protein",
+                               fsl_fcs_dairy = "fcs_dairy",
+                               fsl_fcs_sugar = "fcs_sugar",
+                               fsl_fcs_oil = "fcs_oils"
+        ) %>% 
+        select(-starts_with("fcs_weight"), -c(starts_with("int."))) %>% 
+        rename(i.fcs_score = fsl_fcs_score) %>% 
+        rename(i.fcs_cat = fsl_fcs_cat)
 } 
 
 # loop_roster host 
