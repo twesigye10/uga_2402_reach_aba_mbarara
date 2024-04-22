@@ -6,7 +6,15 @@ create_composites_main_refugee <- function(input_df) {
                                               hh_date_displaced < as_date("2021-03-01") ~ "up_to_36_months_ago",
                                               hh_date_displaced < as_date("2023-03-01") ~ "up_to_12_months_ago"),
                i.avg_family_size = rowSums(select(., any_of(c("number_hh_members_in_mbarara","number_hh_members_live_in_settlement", "number_hh_members_live_in_other_places"))), na.rm = TRUE),
-               i.shelter_index = (number_hh_members_in_mbarara - i.num_children_less_than_one)/shelter_room_sleep_number  
+               i.shelter_index = (number_hh_members_in_mbarara - i.num_children_less_than_one)/shelter_room_sleep_number,
+               i.enough_money_for_food_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_food %in% c("yes") ~ "yes",
+                                                                i.female_hoh_single_parent %in% c("yes") & enough_money_for_food %in% c("no", "dk") ~ "no"),
+               i.enough_money_for_educ_and_health_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("yes") ~ "yes",
+                                                                i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("no", "dk") ~ "no"),
+               i.hh_received_aid_past_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & hh_received_aid_past %in% c("yes") ~ "yes",
+                                                                i.female_hoh_single_parent %in% c("yes") & hh_received_aid_past %in% c("no") ~ "no"),
+               i.hh_received_aid_past_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & !is.na(unmet_needs) ~ "yes",
+                                                                i.female_hoh_single_parent %in% c("yes") & is.na(unmet_needs) ~ "no")
         ) %>% 
         addindicators::add_fcs(cutoffs = "normal",
                                fsl_fcs_cereal = "fcs_cereals",
@@ -73,6 +81,14 @@ create_composites_loop_roster_refugee <- function(input_df) {
 create_composites_main_host <- function(input_df) {
     input_df %>% 
         mutate(i.shelter_index = (number_hh_members_in_mbarara - i.num_children_less_than_one)/shelter_room_sleep_number,
+               i.enough_money_for_food_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_food %in% c("yes") ~ "yes",
+                                                                i.female_hoh_single_parent %in% c("yes") & enough_money_for_food %in% c("no", "dk") ~ "no"),
+               i.enough_money_for_educ_and_health_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("yes") ~ "yes",
+                                                                           i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("no", "dk") ~ "no"),
+               i.hh_received_aid_past_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & hh_received_aid_past %in% c("yes") ~ "yes",
+                                                               i.female_hoh_single_parent %in% c("yes") & hh_received_aid_past %in% c("no") ~ "no"),
+               i.hh_received_aid_past_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & !is.na(unmet_needs) ~ "yes",
+                                                               i.female_hoh_single_parent %in% c("yes") & is.na(unmet_needs) ~ "no")
         ) %>%
         addindicators::add_fcs(cutoffs = "normal",
                                fsl_fcs_cereal = "fcs_cereals",
