@@ -107,8 +107,8 @@ df_combined_hh_indicators_from_roster_host <- list_individual_to_hh_host %>%
 
 # main data with composites
 df_data_with_composites_host <- df_main_clean_data_host %>% 
-    create_composite_indicators_main() %>%
     left_join(df_combined_hh_indicators_from_roster_host, by = c("_uuid" = "_submission__uuid")) %>% 
+    create_composite_indicators_main() %>%
     mutate(strata = paste0("host_", interview_cell)) %>% 
     filter(!interview_cell %in% c("kyamugolanyi"))
     

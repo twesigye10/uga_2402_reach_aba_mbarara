@@ -115,8 +115,8 @@ df_combined_hh_indicators_from_roster_refugee <- list_individual_to_hh_refugee %
 
 # main data with composites
 df_data_with_composites_refugee <- df_main_clean_data_refugee %>% 
-    create_composite_indicators_main() %>%
     left_join(df_combined_hh_indicators_from_roster_refugee, by = c("_uuid" = "_submission__uuid")) %>% 
+    create_composite_indicators_main() %>%
     mutate(strata = paste0("refugee_", interview_cell)) %>% 
     filter(!interview_cell %in% c("kyamugolanyi"))
     
