@@ -123,13 +123,13 @@ df_combined_hh_indicators_from_roster_refugee <- list_individual_to_hh_refugee %
 # main data with composites
 df_data_with_composites_refugee <- df_main_clean_data_refugee %>% 
     left_join(df_combined_hh_indicators_from_roster_refugee, by = c("_uuid" = "_submission__uuid")) %>% 
-    create_composite_indicators_main() %>%
+    create_composites_main_refugee() %>%
     mutate(strata = paste0("refugee_", interview_cell)) %>% 
     filter(!interview_cell %in% c("kyamugolanyi"))
     
 # roster
 df_clean_loop_r_roster_with_composites_refugee <- df_clean_loop_r_roster_refugee %>% 
-    create_composite_indicators_roster()
+    create_composites_loop_roster_refugee()
 
 # refugee analysis - main -------------------------------------------------
 

@@ -115,13 +115,13 @@ df_combined_hh_indicators_from_roster_host <- list_individual_to_hh_host %>%
 # main data with composites
 df_data_with_composites_host <- df_main_clean_data_host %>% 
     left_join(df_combined_hh_indicators_from_roster_host, by = c("_uuid" = "_submission__uuid")) %>% 
-    create_composite_indicators_main() %>%
+    create_composites_main_host() %>%
     mutate(strata = paste0("host_", interview_cell)) %>% 
     filter(!interview_cell %in% c("kyamugolanyi"))
-    
+
 # roster
 df_clean_loop_r_roster_with_composites_host <- df_clean_loop_r_roster_host %>% 
-    create_composite_indicators_roster()
+    create_composites_loop_roster_host()
 
 # host analysis - main -------------------------------------------------
 
@@ -136,8 +136,8 @@ df_main_loa <- all_loa_host %>%
 
 # analysis
 df_main_analysis_host <- analysistools::create_analysis(design = main_ref_svy, 
-                                                      loa = df_main_loa,
-                                                      sm_separator = "/")
+                                                        loa = df_main_loa,
+                                                        sm_separator = "/")
 
 
 # host analysis - roster -----------------------------------------------
@@ -155,15 +155,15 @@ df_roster_loa <- all_loa_host %>%
 
 # analysis
 df_roster_analysis_host <- analysistools::create_analysis(design = roster_ref_svy, 
-                                                             loa = df_roster_loa,
-                                                             sm_separator = "/")
+                                                          loa = df_roster_loa,
+                                                          sm_separator = "/")
 
 # host analysis - income -----------------------------------------------
 
 # income received
 df_income_ref <- df_clean_loop_r_income_host %>% 
     left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
-    
+
 # survey object - income received
 income_ref_svy <- as_survey(.data = df_income_ref, strata = strata)
 
@@ -173,8 +173,8 @@ df_income_loa <- all_loa_host %>%
 
 # analysis
 df_income_analysis_host <- analysistools::create_analysis(design = income_ref_svy, 
-                                                             loa = df_income_loa,
-                                                             sm_separator = "/")
+                                                          loa = df_income_loa,
+                                                          sm_separator = "/")
 
 
 # analysis tables ---------------------------------------------------------
@@ -184,8 +184,8 @@ df_income_analysis_host <- analysistools::create_analysis(design = income_ref_sv
 df_combined_tables <- bind_rows(df_main_analysis_host$results_table,
                                 df_roster_analysis_host$results_table,
                                 df_income_analysis_host$results_table
-                                )
-    
+)
+
 df_host_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables)
 
 presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_host_analysis_table,
