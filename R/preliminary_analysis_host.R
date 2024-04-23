@@ -66,7 +66,7 @@ df_hh_with_disabled_member_host <- df_clean_loop_r_roster_host %>%
 add_checks_data_to_list(input_list_name = "list_individual_to_hh_host", input_df_name = "df_hh_with_disabled_member_host")
 
 # hoh_disability
-df_hh_with_disabled_member_host <- df_clean_loop_r_roster_host %>% 
+df_hoh_disability_host <- df_clean_loop_r_roster_host %>% 
     filter(member_hoh %in% c("yes")) %>% 
     create_composites_loop_roster_host() %>% 
     group_by(`_submission__uuid`) %>% 
@@ -74,7 +74,7 @@ df_hh_with_disabled_member_host <- df_clean_loop_r_roster_host %>%
     mutate(i.hoh_disability = case_when(i.disability_prevalence %in% c("yes_disability") ~ "yes_disability",
                                         i.disability_prevalence %in% c("no_disability") ~ "no_disability")) %>% 
     select(`_submission__uuid`, i.hoh_disability)
-add_checks_data_to_list(input_list_name = "list_individual_to_hh_host", input_df_name = "df_hh_with_disabled_member_host")
+add_checks_data_to_list(input_list_name = "list_individual_to_hh_host", input_df_name = "df_hoh_disability_host")
 
 # female_hoh_single_parent
 df_female_hoh_single_parent_host <- df_clean_loop_r_roster_host %>% 

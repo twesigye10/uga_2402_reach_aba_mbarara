@@ -66,7 +66,7 @@ df_hh_with_disabled_member_refugee <- df_clean_loop_r_roster_refugee %>%
 add_checks_data_to_list(input_list_name = "list_individual_to_hh_refugee", input_df_name = "df_hh_with_disabled_member_refugee")
 
 # hoh_disability
-df_hh_with_disabled_member_refugee <- df_clean_loop_r_roster_refugee %>% 
+df_hoh_disability <- df_clean_loop_r_roster_refugee %>% 
     filter(member_hoh %in% c("yes")) %>% 
     create_composites_loop_roster_refugee() %>% 
     group_by(`_submission__uuid`) %>% 
@@ -74,7 +74,7 @@ df_hh_with_disabled_member_refugee <- df_clean_loop_r_roster_refugee %>%
     mutate(i.hoh_disability = case_when(i.disability_prevalence %in% c("yes_disability") ~ "yes_disability",
                                         i.disability_prevalence %in% c("no_disability") ~ "no_disability")) %>% 
     select(`_submission__uuid`, i.hoh_disability)
-add_checks_data_to_list(input_list_name = "list_individual_to_hh_refugee", input_df_name = "df_hh_with_disabled_member_refugee")
+add_checks_data_to_list(input_list_name = "list_individual_to_hh_refugee", input_df_name = "df_hoh_disability")
 
 # female_hoh_single_parent
 df_female_hoh_single_parent_refugee <- df_clean_loop_r_roster_refugee %>% 
