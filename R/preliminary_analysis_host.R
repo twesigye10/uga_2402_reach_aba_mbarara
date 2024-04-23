@@ -126,16 +126,16 @@ df_clean_loop_r_roster_with_composites_host <- df_clean_loop_r_roster_host %>%
 # host analysis - main -------------------------------------------------
 
 # main
-df_main_ref <- df_data_with_composites_host
+df_main_host <- df_data_with_composites_host
 # survey object
-main_ref_svy <- as_survey(.data = df_main_ref, strata = strata)
+main_host_svy <- as_survey(.data = df_main_host, strata = strata)
 
 # loa
 df_main_loa <- all_loa_host %>% 
     filter(dataset %in% c("main_data"))
 
 # analysis
-df_main_analysis_host <- analysistools::create_analysis(design = main_ref_svy, 
+df_main_analysis_host <- analysistools::create_analysis(design = main_host_svy, 
                                                         loa = df_main_loa,
                                                         sm_separator = "/")
 
@@ -143,36 +143,36 @@ df_main_analysis_host <- analysistools::create_analysis(design = main_ref_svy,
 # host analysis - roster -----------------------------------------------
 
 # roster
-df_roster_ref <- df_clean_loop_r_roster_with_composites_host %>% 
-    left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
+df_roster_host <- df_clean_loop_r_roster_with_composites_host %>% 
+    left_join(df_main_host %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
 
 # survey object
-roster_ref_svy <- as_survey(.data = df_roster_ref, strata = strata)
+roster_host_svy <- as_survey(.data = df_roster_host, strata = strata)
 
 # loa roster
 df_roster_loa <- all_loa_host %>% 
     filter(dataset %in% c("roster"))
 
 # analysis
-df_roster_analysis_host <- analysistools::create_analysis(design = roster_ref_svy, 
+df_roster_analysis_host <- analysistools::create_analysis(design = roster_host_svy, 
                                                           loa = df_roster_loa,
                                                           sm_separator = "/")
 
 # host analysis - income -----------------------------------------------
 
 # income received
-df_income_ref <- df_clean_loop_r_income_host %>% 
-    left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
+df_income_host <- df_clean_loop_r_income_host %>% 
+    left_join(df_main_host %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
 
 # survey object - income received
-income_ref_svy <- as_survey(.data = df_income_ref, strata = strata)
+income_host_svy <- as_survey(.data = df_income_host, strata = strata)
 
 # loa income received
 df_income_loa <- all_loa_host %>% 
     filter(dataset %in% c("income_received"))
 
 # analysis
-df_income_analysis_host <- analysistools::create_analysis(design = income_ref_svy, 
+df_income_analysis_host <- analysistools::create_analysis(design = income_host_svy, 
                                                           loa = df_income_loa,
                                                           sm_separator = "/")
 
