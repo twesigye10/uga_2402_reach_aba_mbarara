@@ -86,19 +86,8 @@ create_composites_main_host <- function(input_df) {
                i.enough_money_for_educ_and_health_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("yes") ~ "yes",
                                                                            i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("no", "dk") ~ "no")
         ) %>%
-        addindicators::add_fcs(cutoffs = "normal",
-                               fsl_fcs_cereal = "fcs_cereals",
-                               fsl_fcs_legumes = "fcs_pulses",
-                               fsl_fcs_veg = "fcs_vegetables",
-                               fsl_fcs_fruit = "fcs_fruits",
-                               fsl_fcs_meat = "fcs_protein",
-                               fsl_fcs_dairy = "fcs_dairy",
-                               fsl_fcs_sugar = "fcs_sugar",
-                               fsl_fcs_oil = "fcs_oils"
-        ) %>% 
-        select(-starts_with("fcs_weight"), -c(starts_with("int."))) %>% 
-        rename(i.fcs_score = fsl_fcs_score) %>% 
-        rename(i.fcs_cat = fsl_fcs_cat)
+        select(-c(starts_with("int."))) 
+        
 } 
 
 # loop_roster host 
