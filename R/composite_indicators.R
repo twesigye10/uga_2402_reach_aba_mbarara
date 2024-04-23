@@ -80,7 +80,7 @@ create_composites_loop_roster_refugee <- function(input_df) {
 # composites_main_host
 create_composites_main_host <- function(input_df) {
     input_df %>% 
-        mutate(i.shelter_index = (number_hh_members_in_mbarara - i.num_children_less_than_one)/shelter_room_sleep_number,
+        mutate(i.shelter_index = (count_hh_number - i.num_children_less_than_one)/shelter_room_sleep_number,
                i.enough_money_for_food_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_food %in% c("yes") ~ "yes",
                                                                 i.female_hoh_single_parent %in% c("yes") & enough_money_for_food %in% c("no", "dk") ~ "no"),
                i.enough_money_for_educ_and_health_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("yes") ~ "yes",
