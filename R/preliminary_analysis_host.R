@@ -99,7 +99,7 @@ add_checks_data_to_list(input_list_name = "list_individual_to_hh_host", input_df
 df_num_children_less_than_one <- df_clean_loop_r_roster_host %>% 
     group_by(`_submission__uuid`) %>% 
     summarise(i.num_children_less_than_one = sum(age %in% c("0"), na.rm = TRUE))
-add_checks_data_to_list(input_list_name = "list_individual_to_hh_refugee", input_df_name = "df_num_children_less_than_one")
+add_checks_data_to_list(input_list_name = "list_individual_to_hh_host", input_df_name = "df_num_children_less_than_one")
 
 
 
@@ -116,8 +116,8 @@ df_combined_hh_indicators_from_roster_host <- list_individual_to_hh_host %>%
 df_data_with_composites_host <- df_main_clean_data_host %>% 
     left_join(df_combined_hh_indicators_from_roster_host, by = c("_uuid" = "_submission__uuid")) %>% 
     create_composites_main_host() %>%
-    mutate(strata = paste0("host_", interview_cell)) %>% 
-    filter(!interview_cell %in% c("kyamugolanyi"))
+    mutate(strata = paste0("host_", interview_cell)) #%>% 
+    # filter(!interview_cell %in% c("kyamugolanyi"))
 
 # roster
 df_clean_loop_r_roster_with_composites_host <- df_clean_loop_r_roster_host %>% 
