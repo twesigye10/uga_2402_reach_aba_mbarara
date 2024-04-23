@@ -129,7 +129,7 @@ for (i in 1:length(sheet_variables_data)) {
 # freeze pane
 freezePane(wb_host, "Analysis", firstActiveRow = 4, firstActiveCol = 3)
 
-openXL(wb_host)
+# openXL(wb_host)
 
-# saveWorkbook(wb_host, paste0("outputs/", butteR::date_file_prefix(),"_formatted_analysis_aba_mbarara_roster_host.xlsx"), overwrite = TRUE)
-# openXL(file = paste0("outputs/", butteR::date_file_prefix(),"_formatted_analysis_aba_mbarara_roster_host.xlsx"))
+saveWorkbook(wb_host, paste0("outputs/", butteR::date_file_prefix(),"_formatted_analysis_aba_mbarara_roster_host.xlsx"), overwrite = TRUE)
+openXL(file = paste0("outputs/", butteR::date_file_prefix(),"_formatted_analysis_aba_mbarara_roster_host.xlsx"))

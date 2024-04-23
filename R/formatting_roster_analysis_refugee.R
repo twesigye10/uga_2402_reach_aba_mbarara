@@ -132,4 +132,4 @@ freezePane(wb_refugee, "Analysis", firstActiveRow = 4, firstActiveCol = 3)
 # openXL(wb_refugee)
 
 saveWorkbook(wb_refugee, paste0("outputs/", butteR::date_file_prefix(),"_formatted_analysis_aba_mbarara_roster_refugee.xlsx"), overwrite = TRUE)
-openXL(file = paste0("outputs/", butteR::date_file_prefix(),"_formatted_analysis_aba_mbarara_roster_host.xlsx"))
+openXL(file = paste0("outputs/", butteR::date_file_prefix(),"_formatted_analysis_aba_mbarara_roster_refugee.xlsx"))
