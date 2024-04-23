@@ -84,11 +84,7 @@ create_composites_main_host <- function(input_df) {
                i.enough_money_for_food_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_food %in% c("yes") ~ "yes",
                                                                 i.female_hoh_single_parent %in% c("yes") & enough_money_for_food %in% c("no", "dk") ~ "no"),
                i.enough_money_for_educ_and_health_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("yes") ~ "yes",
-                                                                           i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("no", "dk") ~ "no"),
-               i.hh_received_aid_past_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & hh_received_aid_past %in% c("yes") ~ "yes",
-                                                               i.female_hoh_single_parent %in% c("yes") & hh_received_aid_past %in% c("no") ~ "no"),
-               i.hh_received_aid_past_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & !is.na(unmet_needs) ~ "yes",
-                                                               i.female_hoh_single_parent %in% c("yes") & is.na(unmet_needs) ~ "no")
+                                                                           i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("no", "dk") ~ "no")
         ) %>%
         addindicators::add_fcs(cutoffs = "normal",
                                fsl_fcs_cereal = "fcs_cereals",

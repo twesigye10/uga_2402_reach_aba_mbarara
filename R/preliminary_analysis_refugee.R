@@ -155,7 +155,7 @@ df_roster_ref <- df_clean_loop_r_roster_with_composites_refugee %>%
     left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
 
 # survey object
-roster_ref_svy <- as_survey(.data = df_roster_ref, strata = strata)
+roster_ref_svy <- as_survey(.data = df_roster_ref)
 
 # loa roster
 df_roster_loa <- all_loa_refugee %>% 
@@ -173,7 +173,7 @@ df_income_ref <- df_clean_loop_r_income_refugee %>%
     left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
     
 # survey object - income received
-income_ref_svy <- as_survey(.data = df_income_ref, strata = strata)
+income_ref_svy <- as_survey(.data = df_income_ref)
 
 # loa income received
 df_income_loa <- all_loa_refugee %>% 
@@ -194,10 +194,28 @@ df_combined_tables <- bind_rows(df_main_analysis_refugee$results_table,
                                 df_income_analysis_refugee$results_table
                                 )
     
-df_refugee_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables)
-
-presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_refugee_analysis_table,
-                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_refugee.xlsx",
-                                             table_sheet_name = "refugee"
+# df_refugee_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables)
+# 
+# presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_refugee_analysis_table,
+#                                              file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_refugee.xlsx",
+#                                              table_sheet_name = "refugee"
+#                                              
+# )
+    
+presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_main_analysis_refugee$results_table),
+                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_refugee_main.xlsx",
+                                             table_sheet_name = "refugee_main"
+                                             
+)
+    
+presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_roster_analysis_refugee$results_table),
+                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_refugee_roster.xlsx",
+                                             table_sheet_name = "refugee_roster"
+                                             
+)
+    
+presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_income_analysis_refugee$results_table),
+                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_refugee_income.xlsx",
+                                             table_sheet_name = "refugee_income"
                                              
 )
