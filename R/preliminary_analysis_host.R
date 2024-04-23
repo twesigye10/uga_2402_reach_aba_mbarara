@@ -189,25 +189,22 @@ df_income_analysis_host <- analysistools::create_analysis(design = income_host_s
 # df_host_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables)
 # 
 # presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_host_analysis_table,
-#                                              file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_host.xlsx",
+#                                              file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_host.xlsx)",
 #                                              table_sheet_name = "host"
 #                                              
 # )
 
 presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_main_analysis_host$results_table),
-                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_host_main.xlsx",
+                                             file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_host_main.xlsx"),
                                              table_sheet_name = "host_main"
-                                             
 )
 
 presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_roster_analysis_host$results_table),
-                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_host_roster.xlsx",
+                                             file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_host_roster.xlsx"),
                                              table_sheet_name = "host_roster"
-                                             
 )
 
 presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_income_analysis_host$results_table),
-                                             file_path = "outputs/analysis_tables_UGA2402_aba_mbarara_host_income.xlsx",
+                                             file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_host_income.xlsx"),
                                              table_sheet_name = "host_income"
-                                             
 )
