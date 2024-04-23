@@ -13,7 +13,7 @@ create_composites_main_refugee <- function(input_df) {
                                                                 i.female_hoh_single_parent %in% c("yes") & enough_money_for_educ_and_health %in% c("no", "dk") ~ "no"),
                i.hh_received_aid_past_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & hh_received_aid_past %in% c("yes") ~ "yes",
                                                                 i.female_hoh_single_parent %in% c("yes") & hh_received_aid_past %in% c("no") ~ "no"),
-               i.hh_received_aid_past_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & !is.na(unmet_needs) ~ "yes",
+               i.unmet_needs_single_f_hoh = case_when(i.female_hoh_single_parent %in% c("yes") & !is.na(unmet_needs) ~ "yes",
                                                                 i.female_hoh_single_parent %in% c("yes") & is.na(unmet_needs) ~ "no")
         ) %>% 
         addindicators::add_fcs(cutoffs = "normal",
