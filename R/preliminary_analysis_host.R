@@ -128,7 +128,7 @@ df_clean_loop_r_roster_with_composites_host <- df_clean_loop_r_roster_host %>%
 # main
 df_main_host <- df_data_with_composites_host
 # survey object
-main_host_svy <- as_survey(.data = df_main_host, strata = strata)
+main_host_svy <- as_survey(.data = df_main_host)
 
 # loa
 df_main_loa <- all_loa_host %>% 
@@ -147,7 +147,7 @@ df_roster_host <- df_clean_loop_r_roster_with_composites_host %>%
     left_join(df_main_host %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
 
 # survey object
-roster_host_svy <- as_survey(.data = df_roster_host, strata = strata)
+roster_host_svy <- as_survey(.data = df_roster_host)
 
 # loa roster
 df_roster_loa <- all_loa_host %>% 
@@ -165,7 +165,7 @@ df_income_host <- df_clean_loop_r_income_host %>%
     left_join(df_main_host %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
 
 # survey object - income received
-income_host_svy <- as_survey(.data = df_income_host, strata = strata)
+income_host_svy <- as_survey(.data = df_income_host)
 
 # loa income received
 df_income_loa <- all_loa_host %>% 
