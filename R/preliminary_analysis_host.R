@@ -143,8 +143,7 @@ df_main_analysis_host <- analysistools::create_analysis(design = main_host_svy,
 # host analysis - roster -----------------------------------------------
 
 # roster
-df_roster_host <- df_clean_loop_r_roster_with_composites_host %>% 
-    left_join(df_main_host %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
+df_roster_host <- df_clean_loop_r_roster_with_composites_host
 
 # survey object
 roster_host_svy <- as_survey(.data = df_roster_host)
@@ -162,7 +161,7 @@ df_roster_analysis_host <- analysistools::create_analysis(design = roster_host_s
 
 # income received
 df_income_host <- df_clean_loop_r_income_host %>% 
-    left_join(df_main_host %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
+    filter(!is.na(income_post))
 
 # survey object - income received
 income_host_svy <- as_survey(.data = df_income_host)
@@ -206,5 +205,6 @@ presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentres
 
 presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_income_analysis_host$results_table),
                                              file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_host_income.xlsx"),
-                                             table_sheet_name = "host_income"
+                                             table_sheet_name = "host_income", overwrite = TRUE
 )
+

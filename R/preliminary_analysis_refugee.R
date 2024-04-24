@@ -151,8 +151,7 @@ df_main_analysis_refugee <- analysistools::create_analysis(design = main_ref_svy
 # refugee analysis - roster -----------------------------------------------
 
 # roster
-df_roster_ref <- df_clean_loop_r_roster_with_composites_refugee %>% 
-    left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
+df_roster_ref <- df_clean_loop_r_roster_with_composites_refugee
 
 # survey object
 roster_ref_svy <- as_survey(.data = df_roster_ref)
@@ -170,7 +169,7 @@ df_roster_analysis_refugee <- analysistools::create_analysis(design = roster_ref
 
 # income received
 df_income_ref <- df_clean_loop_r_income_refugee %>% 
-    left_join(df_main_ref %>% select(any_of(c("_uuid", "strata"))), by = c("_submission__uuid" = "_uuid"))
+    filter(!is.na(income_post))
     
 # survey object - income received
 income_ref_svy <- as_survey(.data = df_income_ref)
