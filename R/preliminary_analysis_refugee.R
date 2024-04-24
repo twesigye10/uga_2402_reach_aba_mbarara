@@ -193,25 +193,24 @@ df_combined_tables <- bind_rows(df_main_analysis_refugee$results_table,
                                 df_income_analysis_refugee$results_table
                                 )
     
-# df_refugee_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables)
-# 
-# presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_refugee_analysis_table,
-#                                              file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee.xlsx)",
-#                                              table_sheet_name = "refugee"
-#                                              
+df_refugee_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables)
+
+presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_refugee_analysis_table,
+                                             file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee.xlsx"),
+                                             table_sheet_name = "refugee", overwrite = TRUE
+)
+    
+# presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_main_analysis_refugee$results_table),
+#                                              file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee_main.xlsx"),
+#                                              table_sheet_name = "refugee_main", overwrite = TRUE
 # )
-    
-presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_main_analysis_refugee$results_table),
-                                             file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee_main.xlsx"),
-                                             table_sheet_name = "refugee_main"
-)
-    
-presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_roster_analysis_refugee$results_table),
-                                             file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee_roster.xlsx"),
-                                             table_sheet_name = "refugee_roster"
-)
-    
-presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_income_analysis_refugee$results_table),
-                                             file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee_income.xlsx"),
-                                             table_sheet_name = "refugee_income"
-)
+#     
+# presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_roster_analysis_refugee$results_table),
+#                                              file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee_roster.xlsx"),
+#                                              table_sheet_name = "refugee_roster", overwrite = TRUE
+# )
+#     
+# presentresults::create_xlsx_variable_x_group(table_group_x_variable = presentresults::create_table_variable_x_group(results_table = df_income_analysis_refugee$results_table),
+#                                              file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee_income.xlsx"),
+#                                              table_sheet_name = "refugee_income", overwrite = TRUE
+# )
