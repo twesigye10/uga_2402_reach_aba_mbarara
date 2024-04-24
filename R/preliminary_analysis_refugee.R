@@ -193,7 +193,8 @@ df_combined_tables <- bind_rows(df_main_analysis_refugee$results_table,
                                 df_income_analysis_refugee$results_table
                                 )
     
-df_refugee_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables)
+df_refugee_analysis_table <- presentresults::create_table_variable_x_group(results_table = df_combined_tables) %>% 
+    filter(!(analysis_type %in% c("prop_select_one", "prop_select_multiple") & (is.na(analysis_var_value) | analysis_var_value %in% c("NA"))))
 
 presentresults::create_xlsx_variable_x_group(table_group_x_variable = df_refugee_analysis_table,
                                              file_path = paste0("outputs/", butteR::date_file_prefix(), "_analysis_tables_UGA2402_aba_mbarara_refugee.xlsx"),
